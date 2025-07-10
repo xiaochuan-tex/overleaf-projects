@@ -20,7 +20,22 @@ jobs:
       - name: install
         run: |
           sudo apt update
-          sudo apt install -y texlive-latex-base texlive-latex-extra texlive-fonts-recommended texlive-bibtex-extra biber
+          sudo apt-get install -y \
+            texlive-latex-base \
+            texlive-xetex \
+            texlive-fonts-recommended \
+            texlive-fonts-extra \
+            texlive-latex-extra \
+            texlive-luatex \
+            lmodern \
+            fonts-freefont-otf  
+
+      - name: Cache
+        id: cache-texlive
+        uses: actions/cache@v4
+        with:
+          path: /var/cache/apt/archives
+          key: ${{ runner.os }}-texlive
 
       - name: compile
         run: |
