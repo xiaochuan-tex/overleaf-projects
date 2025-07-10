@@ -14,10 +14,13 @@ jobs:
       - uses: actions/checkout@v4
       - name: clone source
         run: |
-          curl -H "Cookie: ${{ secrets.COOKIE }}" "https://www.overleaf.com/project/6858df18adf054946faa2f55/download/zip"  -o source.zip
+          curl -H "Cookie: ${{ secrets.COOKIE }}" "https://www.overleaf.com/project/6858df18adf054946faa2f55/download/zip"  -o source1.zip
           ls -R
-          unzip ./source.zip -d ./教育知识与能力
+          unzip ./source1.zip -d ./教育知识与能力
 
+      - name: install latex
+        run: |
+          sudo apt install -y texlive-latex-base texlive-latex-extra texlive-fonts-recommended texlive-bibtex-extra biber
 
       # - name: commit
       #   run: |
