@@ -1,0 +1,28 @@
+name: Job
+permissions: write-all
+on:
+  schedule:
+    - cron: '0 * * * *'
+  workflow_dispatch:
+  push:
+
+jobs:
+  run-daily:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: clone source
+        run: |
+          curl -H "Cookie: ${{ secrets.COOKIE }}" "https://www.overleaf.com/project/6858df18adf054946faa2f55/download/zip"  -o source.zip
+          ls -R
+          unzip ./source.zip -d ./教育知识与能力
+
+
+      # - name: commit
+      #   run: |
+      #     git config --global user.name "GitHub Actions"
+      #     git config --global user.email "actions@github.com"
+      #     git add .
+      #     git commit -m 'update'
+      #     git push
