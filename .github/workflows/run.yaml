@@ -33,13 +33,6 @@ jobs:
             texlive-lang-chinese \
             fonts-noto-cjk \        # Noto CJK字体
 
-      - name: Cache
-        id: cache-texlive
-        uses: actions/cache@v4
-        with:
-          path: /var/cache/apt/archives
-          key: ${{ runner.os }}-texlive
-
       - name: compile
         run: |
           cd ./教育知识与能力
