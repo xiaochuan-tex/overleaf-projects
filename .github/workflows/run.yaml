@@ -10,6 +10,8 @@ jobs:
   run-daily:
     runs-on: ubuntu-latest
 
+    container: texlive/texlive:latest
+
     steps:
       - uses: actions/checkout@v4
       - name: clone source
@@ -18,9 +20,10 @@ jobs:
           ls -R
           unzip ./source1.zip -d ./教育知识与能力
 
-      - name: install latex
+      - name: compile
         run: |
-          sudo apt install -y texlive-latex-base texlive-latex-extra texlive-fonts-recommended texlive-bibtex-extra biber
+          cd ./教育知识与能力
+          xelatex main.tex
 
       # - name: commit
       #   run: |
