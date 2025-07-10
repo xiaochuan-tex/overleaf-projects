@@ -31,7 +31,7 @@ jobs:
             fonts-freefont-otf \
             texlive-latex-recommended \
             texlive-lang-chinese \
-            fonts-noto-cjk \        # Noto CJK字体
+            fonts-noto-cjk
 
       - name: compile
         run: |
