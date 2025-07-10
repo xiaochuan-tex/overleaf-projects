@@ -28,7 +28,11 @@ jobs:
             texlive-latex-extra \
             texlive-luatex \
             lmodern \
-            fonts-freefont-otf  
+            fonts-freefont-otf \
+            texlive-latex-base \
+            texlive-latex-recommended \
+            texlive-lang-chinese \
+            fonts-noto-cjk \
 
       - name: Cache
         id: cache-texlive
