@@ -19,19 +19,12 @@ jobs:
           unzip ./source1.zip -d ./教育知识与能力
       - name: install
         run: |
-          sudo apt update
-          sudo apt-get install -y \
-            texlive-latex-base \
-            texlive-xetex \
-            texlive-fonts-recommended \
-            texlive-fonts-extra \
-            texlive-latex-extra \
-            texlive-luatex \
-            lmodern \
-            fonts-freefont-otf \
-            texlive-latex-recommended \
-            texlive-lang-chinese \
-            fonts-noto-cjk
+          cd /tmp
+          curl -L -o install-tl-unx.tar.gz https://mirror.ctan.org/systems/texlive/tlnet/install-tl-unx.tar.gz
+          tar -xzf install-tl-unx.tar.gz
+          cd install-tl-2*
+          sudo ./install-tl --scheme=full --no-interaction
+          echo "PATH=$PATH:/usr/local/texlive/2024/bin/x86_64-linux" >> $GITHUB_ENV
 
       - name: compile
         run: |
