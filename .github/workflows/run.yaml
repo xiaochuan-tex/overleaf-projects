@@ -20,6 +20,9 @@ jobs:
           ls -R
           unzip ./source1.zip -d ./教育知识与能力
 
+      - name: install font
+        run: sudo apt install fonts-noto-cjk
+
       - name: compile
         run: |
           cd ./教育知识与能力
