@@ -10,6 +10,8 @@ jobs:
   run-daily:
     runs-on: ubuntu-latest
 
+    container: texlive/texlive:latest-full
+
     steps:
       - uses: actions/checkout@v4
       - name: clone source
@@ -17,14 +19,6 @@ jobs:
           curl -H "Cookie: ${{ secrets.COOKIE }}" "https://www.overleaf.com/project/6858df18adf054946faa2f55/download/zip"  -o source1.zip
           ls -R
           unzip ./source1.zip -d ./教育知识与能力
-      - name: install
-        run: |
-          cd /tmp
-          curl -L -o install-tl-unx.tar.gz https://mirror.ctan.org/systems/texlive/tlnet/install-tl-unx.tar.gz
-          tar -xzf install-tl-unx.tar.gz
-          cd install-tl-2*
-          sudo ./install-tl --scheme=full --no-interaction
-          echo "PATH=$PATH:/usr/local/texlive/2025/bin/x86_64-linux" >> $GITHUB_ENV
 
       - name: compile
         run: |
