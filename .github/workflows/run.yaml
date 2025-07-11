@@ -24,7 +24,7 @@ jobs:
           tar -xzf install-tl-unx.tar.gz
           cd install-tl-2*
           sudo ./install-tl --scheme=full --no-interaction
-          echo "PATH=$PATH:/usr/local/texlive/2024/bin/x86_64-linux" >> $GITHUB_ENV
+          echo "PATH=$PATH:/usr/local/texlive/2025/bin/x86_64-linux" >> $GITHUB_ENV
 
       - name: compile
         run: |
