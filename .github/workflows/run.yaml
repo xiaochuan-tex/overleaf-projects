@@ -2,7 +2,7 @@ name: Job
 permissions: write-all
 on:
   schedule:
-    - cron: '0 * * * *'
+    - cron: '0 0,6,12,18 * * *'
   workflow_dispatch:
   push:
 
@@ -17,24 +17,40 @@ jobs:
           curl -H "Cookie: ${{ secrets.COOKIE }}" "https://www.overleaf.com/project/6858df18adf054946faa2f55/download/zip"  -o source1.zip
           ls -R
           unzip ./source1.zip -d ./教育知识与能力
-      - name: install
+
+      - name: Fix permissions for caching
+        run: |
+          sudo mkdir -p /usr/local/texlive/2025
+          sudo chown -R $USER:$USER /usr/local/texlive/2025
+          sudo chmod -R 755 /usr/local/texlive/2025
+
+      - name: Cache downloaded file
+        uses: actions/cache@v4
+        id: cache-software
+        with:
+          path: /usr/local/texlive/2025
+          key: ${{ runner.os }}-texlive2025
+
+      - name: install texlive
+        if: steps.cache-software.outputs.cache-hit != 'true'
+        run: |
+          cd /tmp
+          curl -O https://mirrors.tuna.tsinghua.edu.cn/CTAN/systems/texlive/Images/texlive2025.iso
+          sudo mkdir -p /mnt/texlive2025
+          sudo mount -o loop,ro /tmp/texlive2025.iso /mnt/texlive2025
+          cd /mnt/texlive2025
+          sudo ./install-tl --scheme=full --no-interaction
+
+      - name: download font
         run: |
           sudo apt update
-          sudo apt-get install -y \
-            texlive-latex-base \
-            texlive-xetex \
-            texlive-fonts-recommended \
-            texlive-fonts-extra \
-            texlive-latex-extra \
-            texlive-luatex \
-            lmodern \
-            fonts-freefont-otf \
-            texlive-latex-recommended \
-            texlive-lang-chinese \
-            fonts-noto-cjk
+          sudo apt install fonts-noto-cjk
+          sudo apt install fonts-arphic-gkai00mp
+          fc-cache -fv
 
       - name: compile
         run: |
+          export PATH=$PATH:/usr/local/texlive/2025/bin/x86_64-linux
           cd ./教育知识与能力
           xelatex -jobname=教育知识与能力 main.tex
           xelatex -jobname=教育知识与能力 main.tex
