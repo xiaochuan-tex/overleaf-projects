@@ -41,6 +41,7 @@ jobs:
 
       - name: compile
         run: |
+          export PATH=$PATH:/usr/local/texlive/2025/bin/x86_64-linux
           cd ./教育知识与能力
           xelatex -jobname=教育知识与能力 main.tex
           xelatex -jobname=教育知识与能力 main.tex
