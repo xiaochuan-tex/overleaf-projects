@@ -23,7 +23,7 @@ jobs:
         id: cache-software
         with:
           path: /usr/local/texlive/2025
-          key: ${{ runner.os }}-texlive2025targz
+          key: ${{ runner.os }}-texlive2025
 
       - name: install texlive
         if: steps.cache-software.outputs.cache-hit != 'true'
