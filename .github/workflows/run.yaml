@@ -38,7 +38,7 @@ jobs:
           curl -L -o install-tl-unx.tar.gz https://mirror.ctan.org/systems/texlive/tlnet/install-tl-unx.tar.gz
           tar -xzf install-tl-unx.tar.gz
           cd install-tl-2*
-          sudo ./install-tl --scheme=full --no-interaction
+          sudo ./install-tl --scheme=medium --no-interaction
 
       # - name: install font
       #   run: | 
