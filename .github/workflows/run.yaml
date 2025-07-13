@@ -50,8 +50,7 @@ jobs:
         run: |
           sudo apt update
           sudo apt install fonts-noto-cjk
-          sudo apt install fonts-freefont-otf
-          sudo apt install fonts-arphic-ukai fonts-arphic-uming
+          sudo apt install fonts-arphic-gkai00mp
           fc-cache -fv
 
       - name: compile
