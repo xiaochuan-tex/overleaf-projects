@@ -10,8 +10,6 @@ jobs:
   run-daily:
     runs-on: ubuntu-latest
 
-    container: texlive/texlive:latest-full
-
     steps:
       - uses: actions/checkout@v4
       - name: clone source
