@@ -46,22 +46,22 @@ jobs:
       #     apt update
       #     apt install fonts-noto-cjk
 
-      # - name: compile
-      #   run: |
-      #     export PATH=$PATH:~/texlive/2025/bin/x86_64-linux
-      #     cd ./教育知识与能力
-      #     xelatex -jobname=教育知识与能力 main.tex
-      #     xelatex -jobname=教育知识与能力 main.tex
-      #     cp ./*.pdf ../
+      - name: compile
+        run: |
+          export PATH=$PATH:~/texlive/2025/bin/x86_64-linux
+          cd ./教育知识与能力
+          xelatex -jobname=教育知识与能力 main.tex
+          xelatex -jobname=教育知识与能力 main.tex
+          cp ./*.pdf ../
 
-      # - name: commit
-      #   run: |
-      #     git config --global user.name "GitHub Actions"
-      #     git config --global user.email "actions@github.com"
-      #     git add ./*.pdf
-      #     if [ -n "$(git status --porcelain)" ]; then
-      #       git commit -m 'update'
-      #       git push
-      #     else
-      #       echo "No changes to commit"
-      #     fi
+      - name: commit
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          git add ./*.pdf
+          if [ -n "$(git status --porcelain)" ]; then
+            git commit -m 'update'
+            git push
+          else
+            echo "No changes to commit"
+          fi
