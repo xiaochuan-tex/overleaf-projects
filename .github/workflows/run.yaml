@@ -50,7 +50,6 @@ jobs:
         run: |
           sudo apt update
           sudo apt install fonts-noto-cjk
-          sudo apt install fonts-noto-serif-cjk
 
       - name: compile
         run: |
