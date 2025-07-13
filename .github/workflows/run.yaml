@@ -22,20 +22,14 @@ jobs:
         uses: actions/cache@v4
         id: cache-software
         with:
-          path: /tmp/install-tl-unx.tar.gz
-          key: ${{ runner.os }}-texlive2025targz
-
-      - name: cache texlive
-        uses: actions/cache@v4
-        with:
           path: /usr/local/texlive/2025
-          key: ${{ runner.os }}-texlive2025
+          key: ${{ runner.os }}-texlive2025targz
 
       - name: install texlive
         if: steps.cache-software.outputs.cache-hit != 'true'
         run: |
           cd /tmp
-          curl -L -o install-tl-unx.tar.gz https://mirror.ctan.org/systems/texlive/tlnet/install-tl-unx.tar.gz
+          curl -L -o install-tl-unx.tar.gz https://mirrors.ustc.edu.cn/CTAN/systems/texlive/tlnet/install-tl-unx.tar.gz
           tar -xzf install-tl-unx.tar.gz
           cd install-tl-2*
           sudo ./install-tl --scheme=medium --no-interaction
