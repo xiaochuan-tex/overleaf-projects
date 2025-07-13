@@ -46,6 +46,11 @@ jobs:
       #     apt update
       #     apt install fonts-noto-cjk
 
+      - name: download font
+        run: |
+          sudo apt install fonts-noto-cjk
+          sudo apt install fonts-noto-serif-cjk
+
       - name: compile
         run: |
           export PATH=$PATH:/usr/local/texlive/2025/bin/x86_64-linux
