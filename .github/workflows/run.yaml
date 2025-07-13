@@ -51,6 +51,7 @@ jobs:
           sudo apt update
           sudo apt install fonts-noto-cjk
           sudo apt install fonts-freefont-otf
+          sudo apt install fonts-arphic-ukai fonts-arphic-uming
           fc-cache -fv
 
       - name: compile
