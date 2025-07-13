@@ -20,7 +20,7 @@ jobs:
 
       - name: mkdir
         run: |
-          mkdir -p /usr/local/texlive/2025
+          sudo mkdir -p /usr/local/texlive/2025
 
       - name: Cache downloaded file
         uses: actions/cache@v4
