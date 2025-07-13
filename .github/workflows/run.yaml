@@ -18,9 +18,10 @@ jobs:
           ls -R
           unzip ./source1.zip -d ./教育知识与能力
 
-      - name: mkdir
+      - name: Fix permissions for caching
         run: |
-          sudo mkdir -p /usr/local/texlive/2025
+          sudo chown -R $USER:$USER /usr/local/texlive/2025
+          sudo chmod -R 755 /usr/local/texlive/2025
 
       - name: Cache downloaded file
         uses: actions/cache@v4
@@ -46,7 +47,7 @@ jobs:
 
       # - name: compile
       #   run: |
-      #     export PATH=$PATH:/usr/local/texlive/2025/bin/x86_64-linux
+      #     export PATH=$PATH:~/texlive/2025/bin/x86_64-linux
       #     cd ./教育知识与能力
       #     xelatex -jobname=教育知识与能力 main.tex
       #     xelatex -jobname=教育知识与能力 main.tex
