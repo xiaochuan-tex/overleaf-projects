@@ -14,9 +14,9 @@ jobs:
       - uses: actions/checkout@v4
       - name: clone source
         run: |
-          curl -H "Cookie: ${{ secrets.COOKIE }}" "https://www.overleaf.com/project/6858df18adf054946faa2f55/download/zip"  -o source1.zip
+          curl -H "Cookie: ${{ secrets.COOKIE }}" "https://www.overleaf.com/project/6938153fa7bfe48a96682edd/download/zip"  -o source1.zip
           ls -R
-          unzip ./source1.zip -d ./教育知识与能力
+          unzip ./source1.zip -d ./李艳芳900题
 
       - name: Fix permissions for caching
         run: |
@@ -51,8 +51,8 @@ jobs:
       - name: compile
         run: |
           export PATH=$PATH:/usr/local/texlive/2025/bin/x86_64-linux
-          cd ./教育知识与能力
-          latexmk -xelatex -jobname=教育知识与能力 main.tex
+          cd ./李艳芳900题
+          latexmk -xelatex -jobname=李艳芳900题 main.tex
           cp ./*.pdf ../
 
       - name: commit
