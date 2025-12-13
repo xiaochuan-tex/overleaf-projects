@@ -1,4 +1,4 @@
-name: Job
+name: Compile LaTeX Projects
 permissions: write-all
 on:
   schedule:
@@ -7,16 +7,27 @@ on:
   push:
 
 jobs:
-  run-daily:
+  compile-projects:
     runs-on: ubuntu-latest
-
+    strategy:
+      matrix:
+        project: 
+          - name: "李艳芳900题"
+            url: "https://www.overleaf.com/project/6938153fa7bfe48a96682edd/download/zip"
+          # 在这里添加更多项目
+          # - name: "另一个项目"
+          #   url: "https://www.overleaf.com/project/另一个项目/download/zip"
+    
     steps:
       - uses: actions/checkout@v4
-      - name: clone source
+      
+      - name: Clone source
         run: |
-          curl -H "Cookie: ${{ secrets.COOKIE }}" "https://www.overleaf.com/project/6938153fa7bfe48a96682edd/download/zip"  -o source1.zip
-          ls -R
-          unzip ./source1.zip -d ./李艳芳900题
+          PROJECT_NAME="${{ matrix.project.name }}"
+          PROJECT_URL="${{ matrix.project.url }}"
+          
+          curl -H "Cookie: ${{ secrets.COOKIE }}" "$PROJECT_URL" -o "$PROJECT_NAME.zip"
+          unzip "./$PROJECT_NAME.zip" -d "./$PROJECT_NAME"
 
       - name: Fix permissions for caching
         run: |
@@ -41,28 +52,54 @@ jobs:
           cd /mnt/texlive2025
           sudo ./install-tl --scheme=full --no-interaction
 
-      - name: download font
+      - name: Install fonts
         run: |
           sudo apt update
-          sudo apt install fonts-noto-cjk
-          sudo apt install fonts-arphic-gkai00mp
+          sudo apt install -y fonts-noto-cjk fonts-arphic-gkai00mp
           fc-cache -fv
 
-      - name: compile
+      - name: Compile LaTeX
         run: |
           export PATH=$PATH:/usr/local/texlive/2025/bin/x86_64-linux
-          cd ./李艳芳900题
-          latexmk -xelatex -jobname=李艳芳900题 main.tex
-          cp ./*.pdf ../
+          PROJECT_NAME="${{ matrix.project.name }}"
+          
+          cd "./$PROJECT_NAME"
+          
+          # 尝试编译
+          if [ -f "main.tex" ]; then
+            latexmk -xelatex -jobname="$PROJECT_NAME" main.tex
+            cp ./*.pdf ../
+          else
+            # 如果main.tex不存在，尝试查找第一个.tex文件
+            TEX_FILE=$(find . -name "*.tex" | head -1)
+            if [ -n "$TEX_FILE" ]; then
+              BASE_NAME=$(basename "$TEX_FILE" .tex)
+              latexmk -xelatex -jobname="$PROJECT_NAME" "$BASE_NAME.tex"
+              cp ./*.pdf ../
+            else
+              echo "Error: No .tex files found in $PROJECT_NAME"
+              exit 1
+            fi
+          fi
 
-      - name: commit
+      - name: Commit PDF files
         run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
-          git add ./*.pdf
+          
+          PROJECT_NAME="${{ matrix.project.name }}"
+          PDF_FILE="${PROJECT_NAME}.pdf"
+          
+          if [ -f "$PDF_FILE" ]; then
+            git add "$PDF_FILE"
+          else
+            # 如果文件名不匹配，添加所有PDF
+            git add ./*.pdf
+          fi
+          
           if [ -n "$(git status --porcelain)" ]; then
-            git commit -m 'update'
+            git commit -m "Update $PROJECT_NAME PDF [skip ci]"
             git push
           else
-            echo "No changes to commit"
+            echo "No changes to commit for $PROJECT_NAME"
           fi
