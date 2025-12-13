@@ -14,9 +14,8 @@ jobs:
         project: 
           - name: "李艳芳900题"
             url: "https://www.overleaf.com/project/6938153fa7bfe48a96682edd/download/zip"
-          # 在这里添加更多项目
-          # - name: "另一个项目"
-          #   url: "https://www.overleaf.com/project/另一个项目/download/zip"
+          - name: "数据结构做题本"
+            url: "https://www.overleaf.com/project/693c1bd1b7757c632e5994dc/download/zip"
     
     steps:
       - uses: actions/checkout@v4
