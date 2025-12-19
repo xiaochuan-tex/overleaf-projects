@@ -1,28 +1,96 @@
-name: Job
+name: Compile LaTeX Projects
 permissions: write-all
 on:
   schedule:
-    - cron: '0 * * * *'
+    - cron: '0 0,6,12,18 * * *'
   workflow_dispatch:
   push:
 
 jobs:
-  run-daily:
+  compile-projects:
     runs-on: ubuntu-latest
-
+    strategy:
+      matrix:
+        project: 
+          - name: "26李艳芳900题"
+            url: "https://www.overleaf.com/project/6938153fa7bfe48a96682edd/download/zip"
+          - name: "26李林880题"
+            url: "https://www.overleaf.com/project/693952b82ab4edb0635d9a6d/download/zip"
+          - name: "26武忠祥高数严选题"
+            url: "https://www.overleaf.com/project/69426cb371b752e36a043752/download/zip"
+          - name: "26周洋鑫考点全刷800题"
+            url: "https://www.overleaf.com/project/694273ca0004cd133c015538/download/zip"
+          - name: "26数据结构做题本"
+            url: "https://www.overleaf.com/project/693c1bd1b7757c632e5994dc/download/zip"
+          - name: "26操作系统做题本"
+            url: "https://www.overleaf.com/project/693e433b3844a5658596ea38/download/zip"
+    
     steps:
       - uses: actions/checkout@v4
-      - name: clone source
+      
+      - name: Clone source
         run: |
-          curl -H "Cookie: ${{ secrets.COOKIE }}" "https://www.overleaf.com/project/6858df18adf054946faa2f55/download/zip"  -o source.zip
-          ls -R
-          unzip ./source.zip -d ./教育知识与能力
+          PROJECT_NAME="${{ matrix.project.name }}"
+          PROJECT_URL="${{ matrix.project.url }}"
+          
+          curl -H "Cookie: ${{ secrets.COOKIE }}" "$PROJECT_URL" -o "$PROJECT_NAME.zip"
+          unzip "./$PROJECT_NAME.zip" -d "./$PROJECT_NAME"
 
+      - name: Fix permissions for caching
+        run: |
+          sudo mkdir -p /usr/local/texlive/2025
+          sudo chown -R $USER:$USER /usr/local/texlive/2025
+          sudo chmod -R 755 /usr/local/texlive/2025
 
-      # - name: commit
-      #   run: |
-      #     git config --global user.name "GitHub Actions"
-      #     git config --global user.email "actions@github.com"
-      #     git add .
-      #     git commit -m 'update'
-      #     git push
+      - name: Cache downloaded file
+        uses: actions/cache@v4
+        id: cache-software
+        with:
+          path: /usr/local/texlive/2025
+          key: ${{ runner.os }}-texlive2025
+
+      - name: install texlive
+        if: steps.cache-software.outputs.cache-hit != 'true'
+        run: |
+          cd /tmp
+          curl -O https://mirrors.tuna.tsinghua.edu.cn/CTAN/systems/texlive/Images/texlive2025.iso
+          sudo mkdir -p /mnt/texlive2025
+          sudo mount -o loop,ro /tmp/texlive2025.iso /mnt/texlive2025
+          cd /mnt/texlive2025
+          sudo ./install-tl --scheme=full --no-interaction
+
+      - name: Install fonts
+        run: |
+          sudo apt update
+          sudo apt install -y fonts-noto-cjk fonts-arphic-gkai00mp
+          fc-cache -fv
+
+      - name: Compile LaTeX
+        run: |
+          export PATH=$PATH:/usr/local/texlive/2025/bin/x86_64-linux
+          PROJECT_NAME="${{ matrix.project.name }}"
+          
+          cd "./$PROJECT_NAME"
+          
+          # 尝试编译
+          if [ -f "main.tex" ]; then
+            latexmk -xelatex -jobname="$PROJECT_NAME" main.tex
+            cp ./*.pdf ../
+          else
+            # 如果main.tex不存在，尝试查找第一个.tex文件
+            TEX_FILE=$(find . -name "*.tex" | head -1)
+            if [ -n "$TEX_FILE" ]; then
+              BASE_NAME=$(basename "$TEX_FILE" .tex)
+              latexmk -xelatex -jobname="$PROJECT_NAME" "$BASE_NAME.tex"
+              cp ./*.pdf ../
+            else
+              echo "Error: No .tex files found in $PROJECT_NAME"
+              exit 1
+            fi
+          fi
+
+      - name: Upload PDF
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.project.name }}
+          path: ./*.pdf
