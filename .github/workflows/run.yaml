@@ -12,18 +12,9 @@ jobs:
     strategy:
       matrix:
         project: 
-          - name: "26李艳芳900题"
-            url: "https://www.overleaf.com/project/6938153fa7bfe48a96682edd/download/zip"
-          - name: "26李林880题"
-            url: "https://www.overleaf.com/project/693952b82ab4edb0635d9a6d/download/zip"
-          - name: "26武忠祥高数严选题"
-            url: "https://www.overleaf.com/project/69426cb371b752e36a043752/download/zip"
-          - name: "26周洋鑫考点全刷800题"
-            url: "https://www.overleaf.com/project/694273ca0004cd133c015538/download/zip"
-          - name: "26数据结构做题本"
-            url: "https://www.overleaf.com/project/693c1bd1b7757c632e5994dc/download/zip"
-          - name: "26操作系统做题本"
-            url: "https://www.overleaf.com/project/693e433b3844a5658596ea38/download/zip"
+          - name: "测试项目"
+            url: "https://www.overleaf.com/project/6947f8648266e8759a65b440/download/zip"
+          
     
     steps:
       - uses: actions/checkout@v4
@@ -75,6 +66,7 @@ jobs:
           # 尝试编译
           if [ -f "main.tex" ]; then
             latexmk -xelatex -jobname="$PROJECT_NAME" main.tex
+            PADPAPER=1 latexmk -xelatex -jobname="$PROJECT_NAME"_pad main.tex
             cp ./*.pdf ../
           else
             # 如果main.tex不存在，尝试查找第一个.tex文件
@@ -82,6 +74,7 @@ jobs:
             if [ -n "$TEX_FILE" ]; then
               BASE_NAME=$(basename "$TEX_FILE" .tex)
               latexmk -xelatex -jobname="$PROJECT_NAME" "$BASE_NAME.tex"
+              PADPAPER=1 latexmk -xelatex -jobname="$PROJECT_NAME"_pad "$BASE_NAME.tex"
               cp ./*.pdf ../
             else
               echo "Error: No .tex files found in $PROJECT_NAME"
