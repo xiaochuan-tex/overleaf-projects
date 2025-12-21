@@ -66,7 +66,7 @@ jobs:
           # 尝试编译
           if [ -f "main.tex" ]; then
             latexmk -xelatex -jobname="$PROJECT_NAME" main.tex
-            PADPAPER=1 latexmk -xelatex -jobname="$PROJECT_NAME"_pad main.tex
+            latexmk -xelatex -jobname="$PROJECT_NAME"_pad main.tex "\def\padpaper{}\input{main.tex}"
             cp ./*.pdf ../
           else
             # 如果main.tex不存在，尝试查找第一个.tex文件
@@ -74,7 +74,7 @@ jobs:
             if [ -n "$TEX_FILE" ]; then
               BASE_NAME=$(basename "$TEX_FILE" .tex)
               latexmk -xelatex -jobname="$PROJECT_NAME" "$BASE_NAME.tex"
-              PADPAPER=1 latexmk -xelatex -jobname="$PROJECT_NAME"_pad "$BASE_NAME.tex"
+              latexmk -xelatex -jobname="$PROJECT_NAME"_pad "$BASE_NAME.tex" "\def\padpaper{}\input{main.tex}"
               cp ./*.pdf ../
             else
               echo "Error: No .tex files found in $PROJECT_NAME"
