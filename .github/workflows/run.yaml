@@ -79,7 +79,7 @@ jobs:
           if [-f "pad.tex"]; then
             latexmk -xelatex -jobname="${PROJECT_NAME}_pad" pad.tex
           if [-f "exam.tex"]; then
-            latexmk -xelatex -jobname="${PROJECT_NAME}_exam" pad.tex
+            latexmk -xelatex -jobname="${PROJECT_NAME}_exam" exam.tex
 
       - name: Upload PDF
         uses: actions/upload-artifact@v4
