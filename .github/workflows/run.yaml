@@ -75,12 +75,15 @@ jobs:
           # 尝试编译
           if [ -f "main.tex" ]; then
             latexmk -xelatex -jobname="$PROJECT_NAME" main.tex
+            cp ./*.pdf ../
           fi
           if [ -f "pad.tex" ]; then
             latexmk -xelatex -jobname="${PROJECT_NAME}_pad" pad.tex
+            cp ./*.pdf ../
           fi
           if [ -f "exam.tex" ]; then
             latexmk -xelatex -jobname="${PROJECT_NAME}_exam" exam.tex
+            cp ./*.pdf ../
           fi
 
       - name: Upload PDF
