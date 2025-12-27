@@ -76,18 +76,10 @@ jobs:
           if [ -f "main.tex" ]; then
             latexmk -xelatex -jobname="$PROJECT_NAME" main.tex
             cp ./*.pdf ../
-          else
-            # 如果main.tex不存在，尝试查找第一个.tex文件
-            TEX_FILE=$(find . -name "*.tex" | head -1)
-            if [ -n "$TEX_FILE" ]; then
-              BASE_NAME=$(basename "$TEX_FILE" .tex)
-              latexmk -xelatex -jobname="$PROJECT_NAME" "$BASE_NAME.tex"
-              cp ./*.pdf ../
-            else
-              echo "Error: No .tex files found in $PROJECT_NAME"
-              exit 1
-            fi
-          fi
+          if [-f "pad.tex"]; then
+            latexmk -xelatex -jobname="${PROJECT_NAME}_pad" pad.tex
+          if [-f "exam.tex"]; then
+            latexmk -xelatex -jobname="${PROJECT_NAME}_exam" pad.tex
 
       - name: Upload PDF
         uses: actions/upload-artifact@v4
