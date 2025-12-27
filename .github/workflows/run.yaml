@@ -75,14 +75,36 @@ jobs:
           # 尝试编译
           if [ -f "main.tex" ]; then
             latexmk -xelatex -jobname="$PROJECT_NAME" main.tex
-            cp ./*.pdf ../
-          if [-f "pad.tex"]; then
+          fi
+          if [ -f "pad.tex" ]; then
             latexmk -xelatex -jobname="${PROJECT_NAME}_pad" pad.tex
-          if [-f "exam.tex"]; then
+          fi
+          if [ -f "exam.tex" ]; then
             latexmk -xelatex -jobname="${PROJECT_NAME}_exam" exam.tex
+          fi
 
       - name: Upload PDF
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.project.name }}
           path: ./*.pdf
+  collect-all-pdfs:
+    runs-on: ubuntu-latest
+    needs: compile-projects
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: ./all-pdfs
+          
+      - name: List all PDFs
+        run: |
+          echo "所有编译完成的PDF文件："
+          find ./all-pdfs -name "*.pdf" | sort
+          
+      - name: Create consolidated artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: all-latex-projects-pdfs
+          path: ./all-pdfs/
+          retention-days: 7
