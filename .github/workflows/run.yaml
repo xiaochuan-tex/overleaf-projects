@@ -26,12 +26,13 @@ jobs:
             url: "https://www.overleaf.com/project/693e433b3844a5658596ea38/download/zip"
           - name: "24数学模拟卷"
             url: "https://www.overleaf.com/project/69510f5b2a2da77347ae2c01/download/zip"
+            sub: true
     
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v6
         with:
-          python-version: '3.13' 
+          python-version: '3.13'
       
       - name: Clone source
         run: |
@@ -40,6 +41,21 @@ jobs:
           
           curl -H "Cookie: ${{ secrets.COOKIE }}" "$PROJECT_URL" -o "$PROJECT_NAME.zip"
           unzip "./$PROJECT_NAME.zip" -d "./$PROJECT_NAME"
+
+      - name: Setup compile script for sub projects
+        if: ${{ matrix.project.sub == true }}
+        run: |
+          PROJECT_NAME="${{ matrix.project.name }}"
+          echo "检测到 sub=true，为项目 $PROJECT_NAME 设置编译脚本"
+          
+          # 复制当前目录下的 scripts/compile.py 到项目目录
+          echo "复制 scripts/compile.py 到 ./$PROJECT_NAME/"
+          cp "scripts/compile.py" "./$PROJECT_NAME/compile.py"
+          chmod +x "./$PROJECT_NAME/compile.py"
+          
+          # 列出文件确认
+          echo "复制完成，项目目录内容："
+          ls -la "./$PROJECT_NAME/"
 
       - name: Fix permissions for caching
         run: |
