@@ -108,7 +108,6 @@ jobs:
           fi
           if [ -f "compile.py" ]; then
             python ./compile.py
-            cp ./**/*.pdf ../
           fi
 
       - name: Upload PDF
