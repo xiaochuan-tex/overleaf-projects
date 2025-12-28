@@ -108,6 +108,8 @@ jobs:
           fi
           if [ -f "compile.py" ]; then
             python ./compile.py
+            echo "复制所有 PDF 文件到上级目录..."
+            find . -name "*.pdf" -type f -exec cp {} ../ \;
           fi
 
       - name: Upload PDF
