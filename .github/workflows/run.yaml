@@ -24,9 +24,14 @@ jobs:
             url: "https://www.overleaf.com/project/693c1bd1b7757c632e5994dc/download/zip"
           - name: "26操作系统做题本"
             url: "https://www.overleaf.com/project/693e433b3844a5658596ea38/download/zip"
+          - name: "24数学模拟卷"
+            url: "https://www.overleaf.com/project/69510f5b2a2da77347ae2c01/download/zip"
     
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-python@v6
+        with:
+        python-version: '3.13' 
       
       - name: Clone source
         run: |
@@ -84,6 +89,10 @@ jobs:
           if [ -f "exam.tex" ]; then
             latexmk -xelatex -jobname="${PROJECT_NAME}_exam" exam.tex
             cp ./*.pdf ../
+          fi
+          if [ -f "compile.py" ]; then
+            python ./compile.py
+            cp ./**/*.pdf ../
           fi
 
       - name: Upload PDF
