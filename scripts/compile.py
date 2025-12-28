@@ -1,5 +1,6 @@
 from pathlib import Path
 import subprocess
+import sys
 
 def compile_pad(entry, name):
 
@@ -120,9 +121,11 @@ def compile_pad(entry, name):
     ]
     result = subprocess.run(
         cmd,
-        capture_output=True,
+        stdout=sys.stdout,
+        stderr=sys.stderr,
         text=True,
         encoding='utf-8',
+        errors='ignore'
     )
     if result.returncode == 0:
         print("✅ 编译成功！")
