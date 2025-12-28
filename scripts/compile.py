@@ -116,8 +116,8 @@ def compile_pad(entry, name):
     cmd = [
         'latexmk',
         '-xelatex',
-        f'-jobname="${name}_pad"',
-        'pad.tex'
+        f'-jobname=${name}_pad',
+        str(filepath)
     ]
     result = subprocess.run(
         cmd,
