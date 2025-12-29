@@ -144,34 +144,81 @@ def compile_exam(entry, name):
   page/size=a4paper,
   paren/show-paren=true,
   paren/show-answer=true,
-  % fillin/show-answer=false,
   fillin/type = line,
   fillin/no-answer-type=none,
   solution/show-solution=show-stay,
-  solution/label-indentation=false
+  solution/label-indentation=false,
 }
 
 \newcommand{\pp}{(\quad)}
 \newcommand{\blankline}{\rule[-1pt]{1.5cm}{0.4pt}}
 
+\newcommand{\qrcode}{
+  \begin{tikzpicture}
+    \node[rectangle,
+          draw=blue,            % 固定颜色
+          dashed,
+          line width=1pt,
+          rounded corners=5pt,
+          inner sep=10pt,
+          fill=blue!20,         % 固定背景色
+          minimum width=4cm,    % 固定宽度
+          minimum height=2cm]   % 固定高度
+    {试卷条形码};           % 固定内容
+  \end{tikzpicture}
+}
 
 \everymath{\displaystyle}
 
 \title{{title}}
 
-\subject{数学}
+% \secret
 
-\AtEndPreamble{%
-\geometry{
-    left = 1.5cm,
-    right =1.5cm
-}
-}
+\subject{数学(一)}
 
 \begin{document}
+\secret
 
 \maketitle
 
+\vspace{-10pt}
+\begin{center}
+\Large (科目代码：301)
+\end{center}
+
+\begin{notice}[label=\makebox[\textwidth][c]{\heiti\textnormal{考生注意事项}},top-sep=20pt]
+  \item 答题前，考生须在试题册指定位置上填写考生姓名和考生编号；在答题卡指定位置上填写报考单位、考生姓名和考生编号，并涂写考生编号信息点。
+  \item 考生须把试题册上的“试卷条形码”粘贴条取下，粘贴在答题卡的“试卷条形码粘贴位置”框中。不按规定粘贴条形码而影响评卷结果的，责任由考生自负。
+  \item 选择题的答案必须涂写在答题卡相应题号的选项上，非选择题的答案必须书写在答题卡指定位置的边框区域内。超出答题区域书写的答案无效；在草稿纸、试题册上答题无效。
+  \item 填（书）写部分必须使用黑色字迹签字笔或者钢笔书写，字迹工整、笔记清楚；涂写部分必须使用2B铅笔填涂。
+  \item 考试结束，将答题卡和试题册按规定交回。
+  \item 本次考试时长为3小时。
+\end{notice}
+
+\vspace{50pt}
+
+\begin{center}
+
+\qrcode
+
+\vspace{20pt}
+
+（以下信息考生必须认真填写）
+\vspace{10pt}
+
+\begin{tblr}{
+width = 0.6\textwidth,
+hlines,
+vlines,
+colspec = {Q[l, wd=1.6cm] *{15}{X[c]}},
+cell{2}{2} = {r=1,c=15}{c}
+}
+考生编号 & & & & & & & & & & & & & & & \\
+考生姓名 & & & & & & & & & & & & & & & \\
+\end{tblr}
+\end{center}
+
+\newpage
 {content}
 
 \end{document}'''
@@ -225,7 +272,10 @@ def main():
     ]
 
     for item in l:
-        compile_pad(item['entry'], item['name'])
-        compile_exam(item['entry'], item['name'])
+        current_dir = Path.cwd()
+        input_path = current_dir.joinpath(item['entry'])
+        if input_path.is_dir():
+            compile_pad(item['entry'], item['name'])
+            compile_exam(item['entry'], item['name'])
 
 main()
