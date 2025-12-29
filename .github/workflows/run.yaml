@@ -27,6 +27,8 @@ jobs:
           - name: "24数学模拟卷"
             url: "https://www.overleaf.com/project/69510f5b2a2da77347ae2c01/download/zip"
             sub: true
+          - name: "线性代数陈建龙"
+            url: "https://www.overleaf.com/project/694a85dbedca3140fd82fa92/download/zip"
     
     steps:
       - uses: actions/checkout@v4
