@@ -134,7 +134,83 @@ def compile_pad(entry, name):
     else:
         print("❌ 编译失败:")
         return False
+
+def compile_exam(entry, name):
+
+    template = r'''\let\stop\empty
+\documentclass{exam-zh}
+
+\examsetup{
+  page/size=a4paper,
+  paren/show-paren=true,
+  paren/show-answer=true,
+  % fillin/show-answer=false,
+  fillin/type = line,
+  fillin/no-answer-type=none,
+  solution/show-solution=show-stay,
+  solution/label-indentation=false
+}
+
+\newcommand{\pp}{(\quad)}
+\newcommand{\blankline}{\rule[-1pt]{1.5cm}{0.4pt}}
+
+
+\everymath{\displaystyle}
+
+\title{{title}}
+
+\subject{数学}
+
+\AtEndPreamble{%
+\geometry{
+    left = 1.5cm,
+    right =1.5cm
+}
+}
+
+\begin{document}
+
+\maketitle
+
+{content}
+
+\end{document}'''
+
+    current_dir = Path.cwd()
+    input_path = current_dir.joinpath(entry, 'main.tex')
+    output_path = current_dir.joinpath(entry, 'exam.tex')
+    with open(input_path, "r") as f:
+        input_tex = f.read().replace(r'\newpage', '').replace(r'\vfill', '')
+
+        out_tex = template.replace('{title}', name).replace('{content}', input_tex)
+        with open(output_path, "w") as f_out:
+            f_out.write(out_tex)
     
+        
+    cmd = [
+        'latexmk',
+        '-xelatex',
+        f'-jobname={name}_exam',
+        '-cd',
+        str(output_path)
+    ]
+    result = subprocess.run(
+        cmd,
+        stdout=sys.stdout,
+        stderr=sys.stderr,
+        text=True,
+        encoding='utf-8',
+        errors='ignore'
+    )
+    if result.returncode == 0:
+        print("✅ 编译成功！")
+        return True
+    else:
+        print("❌ 编译失败:")
+        return False
+
+
+
 def main():
 
     l = [
@@ -150,5 +226,6 @@ def main():
 
     for item in l:
         compile_pad(item['entry'], item['name'])
+        compile_exam(item['entry'], item['name'])
 
 main()
