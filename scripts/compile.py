@@ -269,6 +269,14 @@ def main():
             'name': '24合工大超越卷卷2',
             'entry': 'contents/24hegongdachaoyuejuan/juan2'
         },
+        {
+            'name': '2026年全国硕士研究生招生考试',
+            'entry': 'contents/e26'
+        },
+        {
+            'name': '2025年全国硕士研究生招生考试',
+            'entry': 'contents/e25'
+        }
     ]
 
     for item in l:
