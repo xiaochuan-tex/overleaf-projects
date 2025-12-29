@@ -84,7 +84,7 @@ def compile_pad(entry, name):
 \let\oldvfill\vfill  % 保存原来的\vfill命令
 \renewcommand{\vfill}{\newpage}
 
-\title{26李林880题}
+\title{{title}}
 \author{xiaochuan}
 \date{}
 
@@ -105,12 +105,12 @@ def compile_pad(entry, name):
 \end{document}
 
 '''
-
+    out_tex = template_tex.replace("{title}", name)
 
     current_dir = Path.cwd()
     filepath = current_dir.joinpath(entry, 'pad.tex')
     with open(filepath, "w") as f:
-        f.write(template_tex)
+        f.write(out_tex)
     
     print(str(filepath))
     cmd = [
@@ -139,11 +139,11 @@ def main():
 
     l = [
         {
-            'name': '24合工大超越卷1',
+            'name': '24合工大超越卷卷1',
             'entry': 'contents/24hegongdachaoyuejuan/juan1'
         },
         {
-            'name': '24合工大超越卷2',
+            'name': '24合工大超越卷卷2',
             'entry': 'contents/24hegongdachaoyuejuan/juan2'
         },
     ]
