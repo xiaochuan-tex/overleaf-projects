@@ -112,11 +112,12 @@ def compile_pad(entry, name):
     with open(filepath, "w") as f:
         f.write(template_tex)
     
-
+    print(str(filepath))
     cmd = [
         'latexmk',
         '-xelatex',
         f'-jobname={name}_pad',
+        '-cd',
         str(filepath)
     ]
     result = subprocess.run(
