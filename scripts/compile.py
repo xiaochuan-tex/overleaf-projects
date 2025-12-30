@@ -274,28 +274,11 @@ def get_list():
                         'entry': str(item.relative_to(current_dir))
                     })
 
-    print(l)
+    return l
 
 def main():
 
-    l = [
-        {
-            'name': '24合工大超越5+5套卷卷1',
-            'entry': 'contents/24hegongdachaoyuejuan/juan1'
-        },
-        {
-            'name': '24合工大超越5+5套卷卷2',
-            'entry': 'contents/24hegongdachaoyuejuan/juan2'
-        },
-        {
-            'name': '2026年全国硕士研究生招生考试',
-            'entry': 'contents/e26'
-        },
-        {
-            'name': '2025年全国硕士研究生招生考试',
-            'entry': 'contents/e25'
-        }
-    ]
+    l = get_list()
 
     for item in l:
         current_dir = Path.cwd()
@@ -304,4 +287,4 @@ def main():
             compile_pad(item['entry'], item['name'])
             compile_exam(item['entry'], item['name'])
 
-get_list()
+main()
