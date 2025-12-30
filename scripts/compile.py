@@ -1,6 +1,7 @@
 from pathlib import Path
 import subprocess
 import sys
+import argparse
 
 def compile_pad(entry, name):
 
@@ -256,7 +257,6 @@ cell{2}{2} = {r=1,c=15}{c}
         print("❌ 编译失败:")
         return False
 
-
 def get_list():
     l = []
     current_dir = Path.cwd()
@@ -279,12 +279,24 @@ def get_list():
 def main():
 
     l = get_list()
+    parser = argparse.ArgumentParser(description='Compile LaTeX projects')
+    parser.add_argument('--sub', type=str, default='false', 
+                       help='Whether this is a sub project (true/false)')
+    
+    args = parser.parse_args()
+    
+    # 将字符串转换为布尔值
+    is_sub = args.sub.lower() == 'true'
+    
+    print(f"Is sub project: {is_sub}")
+    
+    if is_sub:
 
-    for item in l:
-        current_dir = Path.cwd()
-        input_path = current_dir.joinpath(item['entry'])
-        if input_path.is_dir():
-            compile_pad(item['entry'], item['name'])
-            compile_exam(item['entry'], item['name'])
+        for item in l:
+            current_dir = Path.cwd()
+            input_path = current_dir.joinpath(item['entry'])
+            if input_path.is_dir():
+                compile_pad(item['entry'], item['name'])
+                compile_exam(item['entry'], item['name'])
 
 main()
