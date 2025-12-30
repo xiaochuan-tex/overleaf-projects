@@ -102,7 +102,10 @@ jobs:
             latexmk -xelatex -jobname="$PROJECT_NAME" main.tex
             cp ./*.pdf ../
           fi
-
+          if [ -f "pad.tex" ]; then
+            latexmk -xelatex -jobname="${PROJECT_NAME}_pad" pad.tex
+            cp ./*.pdf ../
+          fi
           if [ -f "compile.py" ]; then
             python ./compile.py --sub="$IS_SUB"
             echo "复制所有 PDF 文件到上级目录..."
