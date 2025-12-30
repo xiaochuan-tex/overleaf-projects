@@ -268,10 +268,10 @@ def get_list():
             if input_tex_path.is_file():
                 with open(input_tex_path, "r") as f:
                     first_line = f.readline()
-                    title = first_line.strip()
+                    title = first_line.replace('%', '').strip()
                     l.append({
                         'name': title,
-                        'entry': item.relative_to(current_dir)
+                        'entry': str(item.relative_to(current_dir))
                     })
 
     print(l)
