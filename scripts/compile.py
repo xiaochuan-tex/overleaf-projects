@@ -2,8 +2,9 @@ from pathlib import Path
 import subprocess
 import sys
 import argparse
+import re
 
-def compile_pad(entry, name):
+def compile_sub_pad(entry, name):
 
 
     template_tex = r'''\documentclass[oneside]{book}
@@ -136,7 +137,7 @@ def compile_pad(entry, name):
         print("❌ 编译失败:")
         return False
 
-def compile_exam(entry, name):
+def compile_sub_exam(entry, name):
 
     template = r'''\let\stop\empty
 \documentclass{exam-zh}
@@ -276,6 +277,45 @@ def get_list():
 
     return l
 
+def extract_latex_info(tex_content):
+    """从LaTeX内容中提取信息"""
+    info = {
+        'title': None,
+        'inputs': []
+    }
+    title_pattern = r'\\title\s*{(.*?)}'
+    title_match = re.search(title_pattern, tex_content, re.DOTALL)
+    if title_match:
+        title = title_match.group(1).strip()
+        title = re.sub(r'\s+', ' ', title)
+        title = title.replace('\\', '').strip()
+        info['title'] = title
+    
+    # 提取 \input{...} 内容
+    input_pattern = r'\\input\s*{(.*?)}'
+    input_matches = re.findall(input_pattern, tex_content, re.DOTALL)
+    
+    for input_match in input_matches:
+        input_path = input_match.strip()
+        # 去除可能的分行反斜杠和空格
+        input_path = re.sub(r'\s+', '', input_path)
+        if input_path:
+            info['inputs'].append(input_path)
+    
+    return info
+
+def compile_pad():
+    current_dir = Path.cwd()
+    input_path = current_dir.joinpath('main.tex')
+
+    with open(input_path, 'r') as f:
+        main_tex = f.read()
+        res = extract_latex_info(main_tex)
+
+        print(res)
+
+
+
 def main():
 
     l = get_list()
@@ -285,18 +325,18 @@ def main():
     
     args = parser.parse_args()
     
-    # 将字符串转换为布尔值
+    compile_pad()
+
     is_sub = args.sub.lower() == 'true'
-    
     print(f"Is sub project: {is_sub}")
-    
+
     if is_sub:
 
         for item in l:
             current_dir = Path.cwd()
             input_path = current_dir.joinpath(item['entry'])
             if input_path.is_dir():
-                compile_pad(item['entry'], item['name'])
-                compile_exam(item['entry'], item['name'])
+                compile_sub_pad(item['entry'], item['name'])
+                compile_sub_exam(item['entry'], item['name'])
 
 main()
