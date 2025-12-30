@@ -257,6 +257,24 @@ cell{2}{2} = {r=1,c=15}{c}
         return False
 
 
+def get_list():
+    l = []
+    current_dir = Path.cwd()
+    contents_path = current_dir.joinpath('contents')
+    for item in contents_path.rglob('*'):
+        if item.is_dir():
+            
+            input_tex_path = item.joinpath('main.tex')
+            if input_tex_path.is_file():
+                with open(input_tex_path, "r") as f:
+                    first_line = f.readline()
+                    title = first_line.strip()
+                    l.append({
+                        'name': title,
+                        'entry': item.relative_to(current_dir)
+                    })
+
+    print(l)
 
 def main():
 
@@ -286,4 +304,4 @@ def main():
             compile_pad(item['entry'], item['name'])
             compile_exam(item['entry'], item['name'])
 
-main()
+get_list()
