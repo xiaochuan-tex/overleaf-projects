@@ -262,11 +262,11 @@ def main():
 
     l = [
         {
-            'name': '24合工大超越5套卷卷1',
+            'name': '24合工大超越5+5套卷卷1',
             'entry': 'contents/24hegongdachaoyuejuan/juan1'
         },
         {
-            'name': '24合工大超越5套卷卷2',
+            'name': '24合工大超越5+5套卷卷2',
             'entry': 'contents/24hegongdachaoyuejuan/juan2'
         },
         {
