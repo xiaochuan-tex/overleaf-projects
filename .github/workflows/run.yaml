@@ -32,6 +32,8 @@ jobs:
             sub: true
           - name: "线性代数陈建龙"
             url: "https://www.overleaf.com/project/694a85dbedca3140fd82fa92/download/zip"
+          - name: "茆书概率论"
+            url: "https://www.overleaf.com/project/695098b32c6528541a5d30a4/download/zip"
     
     steps:
       - uses: actions/checkout@v4
