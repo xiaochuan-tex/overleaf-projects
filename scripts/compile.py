@@ -77,7 +77,6 @@ def compile_sub_pad(entry, name):
 \pagestyle{fancy}
 \fancyhf{}  % 清除所有页眉页脚
 \renewcommand{\headrulewidth}{0pt}  % 去掉页眉横线
-\fancyhead[R]{\rightmark}   % 页眉居右显示章和节
 \fancyfoot[C]{\thepage}
 
 \newcommand{\pp}{(\quad)}
