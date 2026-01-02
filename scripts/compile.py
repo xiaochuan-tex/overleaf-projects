@@ -81,7 +81,7 @@ def compile_sub_pad(entry, name, task_id):
 \usepackage{setspace}
 \usepackage{fancyhdr}
 \usepackage{xparse}
-\usepackage{pingfang}
+\usepackage{pifont}
 \usepackage{nccmath}
 \usepackage{tocloft}
 \usepackage{multicol}
@@ -264,7 +264,7 @@ def compile_sub_exam(entry, name, task_id):
 
 \begin{notice}[label=\makebox[\textwidth][c]{\heiti\textnormal{考生注意事项}},top-sep=20pt]
   \item 答题前，考生须在试题册指定位置上填写考生姓名和考生编号；在答题卡指定位置上填写报考单位、考生姓名和考生编号，并涂写考生编号信息点。
-  \item 考生须把试题册上的"试卷条形码"粘贴条取下，粘贴在答题卡的"试卷条形码粘贴位置"框中。不按规定粘贴条形码而影响评卷结果的，责任由考生自负。
+  \item 考生须把试题册上的“试卷条形码”粘贴条取下，粘贴在答题卡的“试卷条形码粘贴位置”框中。不按规定粘贴条形码而影响评卷结果的，责任由考生自负。
   \item 选择题的答案必须涂写在答题卡相应题号的选项上，非选择题的答案必须书写在答题卡指定位置的边框区域内。超出答题区域书写的答案无效；在草稿纸、试题册上答题无效。
   \item 填（书）写部分必须使用黑色字迹签字笔或者钢笔书写，字迹工整、笔记清楚；涂写部分必须使用2B铅笔填涂。
   \item 考试结束，将答题卡和试题册按规定交回。
@@ -298,7 +298,6 @@ cell{2}{2} = {r=1,c=15}{c}
 {content}
 
 \end{document}'''
-
     current_dir = Path.cwd()
     input_path = current_dir.joinpath(entry, 'main.tex')
     output_path = current_dir.joinpath(entry, 'exam.tex')
