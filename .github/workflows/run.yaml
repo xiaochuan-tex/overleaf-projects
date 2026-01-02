@@ -34,6 +34,8 @@ jobs:
             url: "https://www.overleaf.com/project/694a85dbedca3140fd82fa92/download/zip"
           - name: "茆书概率论"
             url: "https://www.overleaf.com/project/695098b32c6528541a5d30a4/download/zip"
+          - name: "黄炜概率论"
+            url: "https://www.overleaf.com/project/695519924fd1d15c372fa6eb/download/zip"
     
     steps:
       - uses: actions/checkout@v4
