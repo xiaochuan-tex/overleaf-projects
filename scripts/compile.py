@@ -216,6 +216,8 @@ def compile_sub_exam(entry, name, task_id):
     template = r'''\let\stop\empty
 \documentclass{exam-zh}
 
+\usepackage{setspace}
+
 \examsetup{
   page/size=a4paper,
   paren/show-paren=true,
