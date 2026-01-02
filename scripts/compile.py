@@ -176,7 +176,6 @@ def compile_sub_pad(entry, name, task_id):
         '-xelatex',
         f'-jobname={name}_pad',
         '-cd',
-        '-quiet',
         str(filepath)
     ]
     
@@ -324,7 +323,6 @@ cell{2}{2} = {r=1,c=15}{c}
         '-xelatex',
         f'-jobname={name}_exam',
         '-cd',
-        '-quiet',
         str(output_path)
     ]
     
