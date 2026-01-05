@@ -24,6 +24,8 @@ jobs:
             url: "https://www.overleaf.com/project/693c1bd1b7757c632e5994dc/download/zip"
           - name: "26操作系统做题本"
             url: "https://www.overleaf.com/project/693e433b3844a5658596ea38/download/zip"
+          - name: "26计组做题本"
+            url: "https://www.overleaf.com/project/695604664269680786fd1eb2/download/zip"
           - name: "24数学模拟卷"
             url: "https://www.overleaf.com/project/69510f5b2a2da77347ae2c01/download/zip"
             sub: true
