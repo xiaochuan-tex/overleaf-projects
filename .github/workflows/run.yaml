@@ -26,8 +26,16 @@ jobs:
             url: "https://www.overleaf.com/project/693e433b3844a5658596ea38/download/zip"
           - name: "26计组做题本"
             url: "https://www.overleaf.com/project/695604664269680786fd1eb2/download/zip"
+          - name: "26计网做题本"
+            url: "https://www.overleaf.com/project/69562d74426968078605fec3/download/zip"
           - name: "24数学模拟卷"
             url: "https://www.overleaf.com/project/69510f5b2a2da77347ae2c01/download/zip"
+            sub: true
+          - name: "25数学模拟卷"
+            url: "https://www.overleaf.com/project/695c75ec0dc61c016dfe9644/download/zip"
+            sub: true
+          - name: "26数学模拟卷"
+            url: "https://www.overleaf.com/project/695c76428d7895ec31ce2b07/download/zip"
             sub: true
           - name: "数学历年真题"
             url: "https://www.overleaf.com/project/69526b934d1938e26c9773a3/download/zip"
