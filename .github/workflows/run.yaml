@@ -105,7 +105,14 @@ jobs:
             /usr/share/fonts
             ~/.cache/fontconfig
           key: ${{ runner.os }}-fonts-${{ hashFiles('**/apt-packages.txt') }}
-        
+      - name: remove file
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
+          sudo rm -rf "/usr/local/share/boost"
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+          sudo rm -rf /tmp
+
       - name: Install fonts
         if: steps.cache-fonts.outputs.cache-hit != 'true'
         run: |
