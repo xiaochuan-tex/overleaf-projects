@@ -124,6 +124,11 @@ def compile_sub_pad(entry, name, task_id):
 \newcommand{\cthree}{\ding{174}}
 \newcommand{\cfour}{\ding{175}}
 
+\DeclareMathOperator{\Cov}{Cov}
+\DeclareMathOperator{\grad}{grad}
+\DeclareMathOperator{\rot}{rot}
+\DeclareMathOperator{\divop}{div}
+
 \setstretch{1.5}
 
 \everymath{\displaystyle}
@@ -230,6 +235,12 @@ def compile_sub_exam(entry, name, task_id):
 
 \newcommand{\pp}{(\quad)}
 \newcommand{\blankline}{\rule[-1pt]{1.5cm}{0.4pt}}
+
+\DeclareMathOperator{\Cov}{Cov}
+\DeclareMathOperator{\grad}{grad}
+\DeclareMathOperator{\rot}{rot}
+\DeclareMathOperator{\divop}{div}
+
 
 \newcommand{\qrcode}{
   \begin{tikzpicture}
