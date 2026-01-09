@@ -86,7 +86,6 @@ def compile_sub_pad(entry, name, task_id):
 \usepackage{tocloft}
 \usepackage{multicol}
 \usepackage{titlesec}
-\usepackage{currfile}
 \UseTblrLibrary{diagbox}
 
 \setlength{\cftsecindent}{1.5em}      % section缩进，默认2.2em
@@ -120,21 +119,6 @@ def compile_sub_pad(entry, name, task_id):
     \hfill%
 }
 
-% 计算到根目录的相对路径
-\makeatletter
-\newcommand{\setrootgraphicspath}{%
-  \begingroup
-  \edef\@temp{\currfiledir}%
-  \@onelevel@sanitize\@temp%
-  \@for\@dir:=\@temp\do{%
-    \ifx\@dir\@empty\else\edef\@rootpath{\@rootpath../}\fi%
-  }%
-  \graphicspath{{\@rootpath figures/}}%
-  \endgroup
-}
-\makeatother
-\setrootgraphicspath
-
 \newcommand{\cone}{\ding{172}}
 \newcommand{\ctwo}{\ding{173}}
 \newcommand{\cthree}{\ding{174}}
@@ -159,6 +143,14 @@ def compile_sub_pad(entry, name, task_id):
 
 \let\oldvfill\vfill  % 保存原来的\vfill命令
 \renewcommand{\vfill}{\newpage}
+
+\graphicspath{
+  {./}        % 当前目录
+  {../}       % 上一层
+  {../../}    % 上两层
+  {../../../} % 上三层
+  {../../../../} % 上四层（通常足够）
+}
 
 \title{{title}}
 \author{xiaochuan}
@@ -238,7 +230,6 @@ def compile_sub_exam(entry, name, task_id):
 \documentclass{exam-zh}
 
 \usepackage{setspace}
-\usepackage{currfile}
 
 \examsetup{
   page/size=a4paper,
@@ -274,20 +265,13 @@ def compile_sub_exam(entry, name, task_id):
   \end{tikzpicture}
 }
 
-% 计算到根目录的相对路径
-\makeatletter
-\newcommand{\setrootgraphicspath}{%
-  \begingroup
-  \edef\@temp{\currfiledir}%
-  \@onelevel@sanitize\@temp%
-  \@for\@dir:=\@temp\do{%
-    \ifx\@dir\@empty\else\edef\@rootpath{\@rootpath../}\fi%
-  }%
-  \graphicspath{{\@rootpath figures/}}%
-  \endgroup
+\graphicspath{
+  {./}        % 当前目录
+  {../}       % 上一层
+  {../../}    % 上两层
+  {../../../} % 上三层
+  {../../../../} % 上四层（通常足够）
 }
-\makeatother
-\setrootgraphicspath
 
 \everymath{\displaystyle}
 
