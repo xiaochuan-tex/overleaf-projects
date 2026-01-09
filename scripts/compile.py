@@ -86,6 +86,7 @@ def compile_sub_pad(entry, name, task_id):
 \usepackage{tocloft}
 \usepackage{multicol}
 \usepackage{titlesec}
+\usepackage{currfile}
 \UseTblrLibrary{diagbox}
 
 \setlength{\cftsecindent}{1.5em}      % section缩进，默认2.2em
@@ -118,6 +119,21 @@ def compile_sub_pad(entry, name, task_id):
     \end{minipage}%
     \hfill%
 }
+
+% 计算到根目录的相对路径
+\makeatletter
+\newcommand{\setrootgraphicspath}{%
+  \begingroup
+  \edef\@temp{\currfiledir}%
+  \@onelevel@sanitize\@temp%
+  \@for\@dir:=\@temp\do{%
+    \ifx\@dir\@empty\else\edef\@rootpath{\@rootpath../}\fi%
+  }%
+  \graphicspath{{\@rootpath figures/}}%
+  \endgroup
+}
+\makeatother
+\setrootgraphicspath
 
 \newcommand{\cone}{\ding{172}}
 \newcommand{\ctwo}{\ding{173}}
@@ -222,6 +238,7 @@ def compile_sub_exam(entry, name, task_id):
 \documentclass{exam-zh}
 
 \usepackage{setspace}
+\usepackage{currfile}
 
 \examsetup{
   page/size=a4paper,
@@ -256,6 +273,21 @@ def compile_sub_exam(entry, name, task_id):
     {试卷条形码};           % 固定内容
   \end{tikzpicture}
 }
+
+% 计算到根目录的相对路径
+\makeatletter
+\newcommand{\setrootgraphicspath}{%
+  \begingroup
+  \edef\@temp{\currfiledir}%
+  \@onelevel@sanitize\@temp%
+  \@for\@dir:=\@temp\do{%
+    \ifx\@dir\@empty\else\edef\@rootpath{\@rootpath../}\fi%
+  }%
+  \graphicspath{{\@rootpath figures/}}%
+  \endgroup
+}
+\makeatother
+\setrootgraphicspath
 
 \everymath{\displaystyle}
 
