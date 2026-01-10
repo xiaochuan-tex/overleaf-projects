@@ -231,6 +231,8 @@ def compile_sub_exam(entry, name, task_id):
 
 \usepackage{setspace}
 
+\UseTblrLibrary{diagbox}
+
 \examsetup{
   page/size=a4paper,
   paren/show-paren=true,
