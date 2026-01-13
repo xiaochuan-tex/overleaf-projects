@@ -114,11 +114,11 @@ jobs:
           
           # 尝试编译
           if [ -f "main.tex" ]; then
-            latexmk -xelatex -quiet -time -verbose -jobname="$PROJECT_NAME" main.tex
+            latexmk -xelatex -quiet -time -jobname="$PROJECT_NAME" main.tex
             cp ./*.pdf ../
           fi
           if [ -f "pad.tex" ]; then
-            latexmk -xelatex -quiet -time -verbose -jobname="${PROJECT_NAME}_pad" pad.tex
+            latexmk -xelatex -quiet -time -jobname="${PROJECT_NAME}_pad" pad.tex
             cp ./*.pdf ../
           fi
           if [ -f "compile.py" ]; then
