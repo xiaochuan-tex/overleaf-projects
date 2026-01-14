@@ -9,6 +9,8 @@ import threading
 import time
 import multiprocessing
 
+print(f'计算机变量:    {os.getenv('IS_C', 'false')}')
+
 pad_template_tex = r'''\documentclass[oneside]{book}
 
 \usepackage[fontset=ubuntu,heading=true,zihao=-4]{ctex}
