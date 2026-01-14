@@ -109,6 +109,7 @@ jobs:
           export PATH=$PATH:/usr/local/texlive/2025/bin/x86_64-linux
           PROJECT_NAME="${{ matrix.project.name }}"
           IS_SUB="${{ matrix.project.sub || 'false' }}"
+          IS_C="${{ matrix.project.c || 'false' }}"
           
           cd "./$PROJECT_NAME"
           
@@ -122,7 +123,7 @@ jobs:
             cp ./*.pdf ../
           fi
           if [ -f "compile.py" ]; then
-            python ./compile.py --sub="$IS_SUB"
+            python ./compile.py --sub="$IS_SUB" --c="$IS_C"
             echo "复制所有 PDF 文件到上级目录..."
             find . -name "*.pdf" -type f -exec cp {} ../ \;
           fi

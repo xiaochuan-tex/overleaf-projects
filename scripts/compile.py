@@ -9,59 +9,7 @@ import threading
 import time
 import multiprocessing
 
-# 获取CPU核心数
-def get_cpu_count():
-    """获取CPU核心数，考虑超线程"""
-    try:
-        # 物理核心数
-        physical_cores = os.cpu_count() or 1
-        
-        # 如果支持，获取逻辑核心数（考虑超线程）
-        if hasattr(os, 'sched_getaffinity'):
-            logical_cores = len(os.sched_getaffinity(0))
-        else:
-            logical_cores = multiprocessing.cpu_count()
-        
-        # 返回逻辑核心数，但至少为2
-        return max(logical_cores, 2)
-    except:
-        return 4  # 默认值
-
-# 智能计算并发数
-def calculate_concurrency(cpu_count):
-    """
-    智能计算并发数
-    考虑到LaTeX编译是I/O和CPU混合型任务
-    """
-    if cpu_count <= 4:
-        # 4核以下：全部使用
-        projects_conc = max(cpu_count * 2, 2)
-        tasks_conc = 1  # 每个项目pad和exam并发
-    elif cpu_count <= 8:
-        # 4-8核：留一个核心给系统
-        projects_conc = cpu_count - 1
-        tasks_conc = 2
-    else:
-        # 8核以上：留2个核心给系统，项目并发数=cpu_count-2
-        projects_conc = cpu_count - 2
-        tasks_conc = min(2, cpu_count // 4)  # 大核心系统可以增加任务并发
-    
-    return projects_conc, tasks_conc
-
-# 创建线程锁确保输出不乱序
-print_lock = threading.Lock()
-
-def thread_safe_print(*args, **kwargs):
-    """线程安全的打印函数"""
-    with print_lock:
-        print(*args, **kwargs)
-
-def compile_sub_pad(entry, name, task_id):
-    """编译pad版本的LaTeX文档"""
-    thread_safe_print(f"[任务{task_id}] 🚀 开始编译PAD: {name}")
-    
-    # 生成LaTeX模板内容（保持不变）
-    template_tex = r'''\documentclass[oneside]{book}
+pad_template_tex = r'''\documentclass[oneside]{book}
 
 \usepackage[fontset=ubuntu,heading=true,zihao=-4]{ctex}
 \usepackage[landscape,
@@ -173,60 +121,8 @@ def compile_sub_pad(entry, name, task_id):
 \end{document}
 
 '''
-    out_tex = template_tex.replace("{title}", name)
 
-    # 写入文件
-    current_dir = Path.cwd()
-    filepath = current_dir.joinpath(entry, 'pad.tex')
-    with open(filepath, "w", encoding='utf-8') as f:
-        f.write(out_tex)
-    
-    thread_safe_print(f"[任务{task_id}] 📄 生成PAD文件: {filepath}")
-    
-    # 构建编译命令
-    cmd = [
-        'latexmk',
-        '-xelatex',
-        f'-jobname={name}_pad',
-        '-cd',
-        str(filepath)
-    ]
-    
-    start_time = time.time()
-    
-    try:
-        process = subprocess.Popen(
-            cmd,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True,
-            encoding='utf-8',
-            errors='ignore'
-        )
-        
-        stdout, stderr = process.communicate()
-        elapsed_time = time.time() - start_time
-        
-        if process.returncode == 0:
-            thread_safe_print(f"[任务{task_id}] ✅ PAD编译成功！耗时: {elapsed_time:.1f}秒")
-            return True, f"pad_{task_id}"
-        else:
-            thread_safe_print(f"[任务{task_id}] ❌ PAD编译失败！耗时: {elapsed_time:.1f}秒")
-            if stderr:
-                with print_lock:
-                    print(f"[任务{task_id}] 错误信息:")
-                    print(stderr[:500])
-            return False, f"pad_{task_id}"
-            
-    except Exception as e:
-        thread_safe_print(f"[任务{task_id}] 💥 PAD编译异常: {str(e)}")
-        return False, f"pad_{task_id}"
-
-def compile_sub_exam(entry, name, task_id):
-    """编译exam版本的LaTeX文档"""
-    thread_safe_print(f"[任务{task_id}] 🚀 开始编译EXAM: {name}")
-    
-    template = r'''\let\stop\empty
+exam_math_template_tex = r'''\let\stop\empty
 \documentclass{exam-zh}
 
 \usepackage{setspace}
@@ -329,6 +225,113 @@ cell{2}{2} = {r=1,c=15}{c}
 {content}
 
 \end{document}'''
+
+# 获取CPU核心数
+def get_cpu_count():
+    """获取CPU核心数，考虑超线程"""
+    try:
+        # 物理核心数
+        physical_cores = os.cpu_count() or 1
+        
+        # 如果支持，获取逻辑核心数（考虑超线程）
+        if hasattr(os, 'sched_getaffinity'):
+            logical_cores = len(os.sched_getaffinity(0))
+        else:
+            logical_cores = multiprocessing.cpu_count()
+        
+        # 返回逻辑核心数，但至少为2
+        return max(logical_cores, 2)
+    except:
+        return 4  # 默认值
+
+# 智能计算并发数
+def calculate_concurrency(cpu_count):
+    """
+    智能计算并发数
+    考虑到LaTeX编译是I/O和CPU混合型任务
+    """
+    if cpu_count <= 4:
+        # 4核以下：全部使用
+        projects_conc = max(cpu_count * 2, 2)
+        tasks_conc = 1  # 每个项目pad和exam并发
+    elif cpu_count <= 8:
+        # 4-8核：留一个核心给系统
+        projects_conc = cpu_count - 1
+        tasks_conc = 2
+    else:
+        # 8核以上：留2个核心给系统，项目并发数=cpu_count-2
+        projects_conc = cpu_count - 2
+        tasks_conc = min(2, cpu_count // 4)  # 大核心系统可以增加任务并发
+    
+    return projects_conc, tasks_conc
+
+# 创建线程锁确保输出不乱序
+print_lock = threading.Lock()
+
+def thread_safe_print(*args, **kwargs):
+    """线程安全的打印函数"""
+    with print_lock:
+        print(*args, **kwargs)
+
+def compile_sub_pad(entry, name, task_id):
+    """编译pad版本的LaTeX文档"""
+    thread_safe_print(f"[任务{task_id}] 🚀 开始编译PAD: {name}")
+    
+    # 生成LaTeX模板内容（保持不变）
+    template_tex = pad_template_tex
+    out_tex = template_tex.replace("{title}", name)
+
+    # 写入文件
+    current_dir = Path.cwd()
+    filepath = current_dir.joinpath(entry, 'pad.tex')
+    with open(filepath, "w", encoding='utf-8') as f:
+        f.write(out_tex)
+    
+    thread_safe_print(f"[任务{task_id}] 📄 生成PAD文件: {filepath}")
+    
+    # 构建编译命令
+    cmd = [
+        'latexmk',
+        '-xelatex',
+        f'-jobname={name}_pad',
+        '-cd',
+        str(filepath)
+    ]
+    
+    start_time = time.time()
+    
+    try:
+        process = subprocess.Popen(
+            cmd,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            encoding='utf-8',
+            errors='ignore'
+        )
+        
+        stdout, stderr = process.communicate()
+        elapsed_time = time.time() - start_time
+        
+        if process.returncode == 0:
+            thread_safe_print(f"[任务{task_id}] ✅ PAD编译成功！耗时: {elapsed_time:.1f}秒")
+            return True, f"pad_{task_id}"
+        else:
+            thread_safe_print(f"[任务{task_id}] ❌ PAD编译失败！耗时: {elapsed_time:.1f}秒")
+            if stderr:
+                with print_lock:
+                    print(f"[任务{task_id}] 错误信息:")
+                    print(stderr[:500])
+            return False, f"pad_{task_id}"
+            
+    except Exception as e:
+        thread_safe_print(f"[任务{task_id}] 💥 PAD编译异常: {str(e)}")
+        return False, f"pad_{task_id}"
+
+def compile_sub_exam(entry, name, task_id):
+    """编译exam版本的LaTeX文档"""
+    thread_safe_print(f"[任务{task_id}] 🚀 开始编译EXAM: {name}")
+    
     current_dir = Path.cwd()
     input_path = current_dir.joinpath(entry, 'main.tex')
     output_path = current_dir.joinpath(entry, 'exam.tex')
@@ -337,7 +340,7 @@ cell{2}{2} = {r=1,c=15}{c}
         with open(input_path, "r", encoding='utf-8') as f:
             input_tex = f.read().replace(r'\newpage', '').replace(r'\vfill', '')
 
-        out_tex = template.replace('{title}', name).replace('{content}', input_tex)
+        out_tex = exam_math_template_tex.replace('{title}', name).replace('{content}', input_tex)
         
         with open(output_path, "w", encoding='utf-8') as f_out:
             f_out.write(out_tex)
@@ -448,6 +451,8 @@ def main():
     parser = argparse.ArgumentParser(description='并发编译LaTeX项目（自动CPU优化）')
     parser.add_argument('--sub', type=str, default='true', 
                        help='是否为子项目编译 (true/false，默认为true)')
+    parser.add_argument('--c', type=str, default='false', 
+                       help='是否是计算机 (true/false，默认为false)')
     parser.add_argument('--max-projects', type=int, default=max_projects,
                        help=f'同时编译的最大项目数 (自动计算: {max_projects})')
     parser.add_argument('--max-tasks-per-project', type=int, default=max_tasks_per_project,
@@ -464,6 +469,8 @@ def main():
         thread_safe_print(f"🔧 使用指定的CPU核心数: {cpu_count}")
     
     is_sub = args.sub.lower() == 'true'
+
+    is_c = args.c.low() == 'true'
     
     # 如果用户指定了参数，使用用户指定的值
     if args.max_projects != max_projects:
@@ -476,6 +483,8 @@ def main():
     thread_safe_print(f"  • 项目并发数: {max_projects}")
     thread_safe_print(f"  • 任务并发数: {max_tasks_per_project}")
     thread_safe_print(f"  • 子项目模式: {is_sub}")
+    thread_safe_print(f"  • 计算机模式: {is_c}")
+
     
     if not is_sub:
         thread_safe_print("当前为非子项目模式，退出")
