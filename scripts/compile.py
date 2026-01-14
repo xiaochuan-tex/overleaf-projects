@@ -9,7 +9,16 @@ import threading
 import time
 import multiprocessing
 
-print(f'计算机变量:    {os.getenv('IS_C', 'false')}')
+parser = argparse.ArgumentParser(description='并发编译LaTeX项目（自动CPU优化）')
+parser.add_argument('--sub', type=str, default='true', 
+                       help='是否为子项目编译 (true/false，默认为true)')
+parser.add_argument('--c', type=str, default='false', 
+                       help='是否是计算机 (true/false，默认为false)')
+    
+args = parser.parse_args()
+
+is_sub = args.sub.lower() == 'true'
+is_c = args.c.lower() == 'true'
 
 pad_template_tex = r'''\documentclass[oneside]{book}
 
@@ -334,7 +343,7 @@ cell{2}{2} = {r=1,c=15}{c}
 
 exam_template_tex = ''
 
-if os.getenv('IS_C', 'false') == 'true':
+if is_c:
     exam_template_tex = exam_c_template_tex
 else:
     exam_template_tex = exam_math_template_tex
@@ -509,7 +518,7 @@ def compile_sub_project(item, task_id, max_tasks_per_project):
     with ThreadPoolExecutor(max_workers=max_tasks_per_project) as executor:
         futures = []
         
-        if os.getenv('IS_C', 'false') == 'false':
+        if not is_c:
             pad_future = executor.submit(compile_sub_pad, item['entry'], item['name'], f"{task_id}_pad")
             futures.append(pad_future)
         
@@ -561,36 +570,6 @@ def main():
     
     # 智能计算并发数
     max_projects, max_tasks_per_project = calculate_concurrency(cpu_count)
-    
-    parser = argparse.ArgumentParser(description='并发编译LaTeX项目（自动CPU优化）')
-    parser.add_argument('--sub', type=str, default='true', 
-                       help='是否为子项目编译 (true/false，默认为true)')
-    parser.add_argument('--c', type=str, default='false', 
-                       help='是否是计算机 (true/false，默认为false)')
-    parser.add_argument('--max-projects', type=int, default=max_projects,
-                       help=f'同时编译的最大项目数 (自动计算: {max_projects})')
-    parser.add_argument('--max-tasks-per-project', type=int, default=max_tasks_per_project,
-                       help=f'每个项目内同时执行的最大任务数 (自动计算: {max_tasks_per_project})')
-    parser.add_argument('--force-cpu', type=int, default=0,
-                       help='强制指定CPU核心数（0=自动检测）')
-    
-    args = parser.parse_args()
-    
-    # 如果强制指定了CPU核心数
-    if args.force_cpu > 0:
-        cpu_count = args.force_cpu
-        max_projects, max_tasks_per_project = calculate_concurrency(cpu_count)
-        thread_safe_print(f"🔧 使用指定的CPU核心数: {cpu_count}")
-    
-    is_sub = args.sub.lower() == 'true'
-
-    is_c = args.c.lower() == 'true'
-    
-    # 如果用户指定了参数，使用用户指定的值
-    if args.max_projects != max_projects:
-        max_projects = args.max_projects
-    if args.max_tasks_per_project != max_tasks_per_project:
-        max_tasks_per_project = args.max_tasks_per_project
     
     thread_safe_print(f"⚙️  并发配置:")
     thread_safe_print(f"  • CPU核心数: {cpu_count}")
