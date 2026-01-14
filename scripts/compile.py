@@ -507,8 +507,9 @@ def compile_sub_project(item, task_id, max_tasks_per_project):
     with ThreadPoolExecutor(max_workers=max_tasks_per_project) as executor:
         futures = []
         
-        pad_future = executor.submit(compile_sub_pad, item['entry'], item['name'], f"{task_id}_pad")
-        futures.append(pad_future)
+        if os.getenv('IS_C', 'false') == 'false':
+            pad_future = executor.submit(compile_sub_pad, item['entry'], item['name'], f"{task_id}_pad")
+            futures.append(pad_future)
         
         exam_future = executor.submit(compile_sub_exam, item['entry'], item['name'], f"{task_id}_exam")
         futures.append(exam_future)
