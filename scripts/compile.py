@@ -130,6 +130,7 @@ def compile_sub_pad(entry, name):
     cmd = [
         'latexmk',
         '-xelatex',
+        '-quiet',
         f'-jobname={name}_pad',
         '-cd',
         str(filepath)
@@ -269,6 +270,7 @@ cell{2}{2} = {r=1,c=15}{c}
     cmd = [
         'latexmk',
         '-xelatex',
+        '-quiet',
         f'-jobname={name}_exam',
         '-cd',
         str(output_path)
