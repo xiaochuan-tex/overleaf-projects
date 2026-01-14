@@ -35,7 +35,7 @@ def calculate_concurrency(cpu_count):
     """
     if cpu_count <= 4:
         # 4核以下：全部使用
-        projects_conc = max(cpu_count * 4, 2)
+        projects_conc = max(cpu_count * 2, 2)
         tasks_conc = 1  # 每个项目pad和exam并发
     elif cpu_count <= 8:
         # 4-8核：留一个核心给系统
