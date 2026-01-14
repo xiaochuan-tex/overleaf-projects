@@ -3,64 +3,10 @@ import subprocess
 import sys
 import argparse
 import re
-import os
-from concurrent.futures import ThreadPoolExecutor, as_completed
-import threading
-import time
-import multiprocessing
 
-# 获取CPU核心数
-def get_cpu_count():
-    """获取CPU核心数，考虑超线程"""
-    try:
-        # 物理核心数
-        physical_cores = os.cpu_count() or 1
-        
-        # 如果支持，获取逻辑核心数（考虑超线程）
-        if hasattr(os, 'sched_getaffinity'):
-            logical_cores = len(os.sched_getaffinity(0))
-        else:
-            logical_cores = multiprocessing.cpu_count()
-        
-        # 返回逻辑核心数，但至少为2
-        return max(logical_cores, 2)
-    except:
-        return 4  # 默认值
+def compile_sub_pad(entry, name):
 
-# 智能计算并发数
-def calculate_concurrency(cpu_count):
-    """
-    智能计算并发数
-    考虑到LaTeX编译是I/O和CPU混合型任务
-    """
-    if cpu_count <= 4:
-        # 4核以下：全部使用
-        projects_conc = max(cpu_count, 2)
-        tasks_conc = 2  # 每个项目pad和exam并发
-    elif cpu_count <= 8:
-        # 4-8核：留一个核心给系统
-        projects_conc = cpu_count - 1
-        tasks_conc = 2
-    else:
-        # 8核以上：留2个核心给系统，项目并发数=cpu_count-2
-        projects_conc = cpu_count - 2
-        tasks_conc = min(2, cpu_count // 4)  # 大核心系统可以增加任务并发
-    
-    return projects_conc, tasks_conc
 
-# 创建线程锁确保输出不乱序
-print_lock = threading.Lock()
-
-def thread_safe_print(*args, **kwargs):
-    """线程安全的打印函数"""
-    with print_lock:
-        print(*args, **kwargs)
-
-def compile_sub_pad(entry, name, task_id):
-    """编译pad版本的LaTeX文档"""
-    thread_safe_print(f"[任务{task_id}] 🚀 开始编译PAD: {name}")
-    
-    # 生成LaTeX模板内容（保持不变）
     template_tex = r'''\documentclass[oneside]{book}
 
 \usepackage[fontset=ubuntu,heading=true,zihao=-4]{ctex}
@@ -175,15 +121,12 @@ def compile_sub_pad(entry, name, task_id):
 '''
     out_tex = template_tex.replace("{title}", name)
 
-    # 写入文件
     current_dir = Path.cwd()
     filepath = current_dir.joinpath(entry, 'pad.tex')
-    with open(filepath, "w", encoding='utf-8') as f:
+    with open(filepath, "w") as f:
         f.write(out_tex)
     
-    thread_safe_print(f"[任务{task_id}] 📄 生成PAD文件: {filepath}")
-    
-    # 构建编译命令
+    print(str(filepath))
     cmd = [
         'latexmk',
         '-xelatex',
@@ -191,41 +134,23 @@ def compile_sub_pad(entry, name, task_id):
         '-cd',
         str(filepath)
     ]
-    
-    start_time = time.time()
-    
-    try:
-        process = subprocess.Popen(
-            cmd,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True,
-            encoding='utf-8',
-            errors='ignore'
-        )
-        
-        stdout, stderr = process.communicate()
-        elapsed_time = time.time() - start_time
-        
-        if process.returncode == 0:
-            thread_safe_print(f"[任务{task_id}] ✅ PAD编译成功！耗时: {elapsed_time:.1f}秒")
-            return True, f"pad_{task_id}"
-        else:
-            thread_safe_print(f"[任务{task_id}] ❌ PAD编译失败！耗时: {elapsed_time:.1f}秒")
-            if stderr:
-                with print_lock:
-                    print(f"[任务{task_id}] 错误信息:")
-                    print(stderr[:500])
-            return False, f"pad_{task_id}"
-            
-    except Exception as e:
-        thread_safe_print(f"[任务{task_id}] 💥 PAD编译异常: {str(e)}")
-        return False, f"pad_{task_id}"
+    result = subprocess.run(
+        cmd,
+        stdout=sys.stdout,
+        stderr=sys.stderr,
+        text=True,
+        encoding='utf-8',
+        errors='ignore'
+    )
+    if result.returncode == 0:
+        print("✅ 编译成功！")
+        return True
+    else:
+        print("❌ 编译失败:")
+        return False
 
-def compile_sub_exam(entry, name, task_id):
-    """编译exam版本的LaTeX文档"""
-    thread_safe_print(f"[任务{task_id}] 🚀 开始编译EXAM: {name}")
-    
+def compile_sub_exam(entry, name):
+
     template = r'''\let\stop\empty
 \documentclass{exam-zh}
 
@@ -329,25 +254,18 @@ cell{2}{2} = {r=1,c=15}{c}
 {content}
 
 \end{document}'''
+
     current_dir = Path.cwd()
     input_path = current_dir.joinpath(entry, 'main.tex')
     output_path = current_dir.joinpath(entry, 'exam.tex')
-    
-    try:
-        with open(input_path, "r", encoding='utf-8') as f:
-            input_tex = f.read().replace(r'\newpage', '').replace(r'\vfill', '')
+    with open(input_path, "r") as f:
+        input_tex = f.read().replace(r'\newpage', '').replace(r'\vfill', '')
 
         out_tex = template.replace('{title}', name).replace('{content}', input_tex)
-        
-        with open(output_path, "w", encoding='utf-8') as f_out:
+        with open(output_path, "w") as f_out:
             f_out.write(out_tex)
-        
-        thread_safe_print(f"[任务{task_id}] 📄 生成EXAM文件: {output_path}")
-        
-    except Exception as e:
-        thread_safe_print(f"[任务{task_id}] ❌ 读取/写入文件失败: {str(e)}")
-        return False, f"exam_{task_id}"
     
+        
     cmd = [
         'latexmk',
         '-xelatex',
@@ -355,210 +273,59 @@ cell{2}{2} = {r=1,c=15}{c}
         '-cd',
         str(output_path)
     ]
-    
-    start_time = time.time()
-    
-    try:
-        process = subprocess.Popen(
-            cmd,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True,
-            encoding='utf-8',
-            errors='ignore'
-        )
-        
-        stdout, stderr = process.communicate()
-        elapsed_time = time.time() - start_time
-        
-        if process.returncode == 0:
-            thread_safe_print(f"[任务{task_id}] ✅ EXAM编译成功！耗时: {elapsed_time:.1f}秒")
-            return True, f"exam_{task_id}"
-        else:
-            thread_safe_print(f"[任务{task_id}] ❌ EXAM编译失败！耗时: {elapsed_time:.1f}秒")
-            if stderr:
-                with print_lock:
-                    print(f"[任务{task_id}] 错误信息:")
-                    print(stderr[:500])
-            return False, f"exam_{task_id}"
-            
-    except Exception as e:
-        thread_safe_print(f"[任务{task_id}] 💥 EXAM编译异常: {str(e)}")
-        return False, f"exam_{task_id}"
-
-def compile_sub_project(item, task_id, max_tasks_per_project):
-    """并发编译单个项目的pad和exam版本"""
-    results = []
-    
-    with ThreadPoolExecutor(max_workers=max_tasks_per_project) as executor:
-        futures = []
-        
-        pad_future = executor.submit(compile_sub_pad, item['entry'], item['name'], f"{task_id}_pad")
-        futures.append(pad_future)
-        
-        exam_future = executor.submit(compile_sub_exam, item['entry'], item['name'], f"{task_id}_exam")
-        futures.append(exam_future)
-        
-        for future in as_completed(futures):
-            success, task_type = future.result()
-            results.append((success, task_type))
-    
-    all_success = all(success for success, _ in results)
-    return all_success, task_id, item['name']
+    result = subprocess.run(
+        cmd,
+        stdout=sys.stdout,
+        stderr=sys.stderr,
+        text=True,
+        encoding='utf-8',
+        errors='ignore'
+    )
+    if result.returncode == 0:
+        print("✅ 编译成功！")
+        return True
+    else:
+        print("❌ 编译失败:")
+        return False
 
 def get_list():
-    """获取项目列表"""
     l = []
     current_dir = Path.cwd()
     contents_path = current_dir.joinpath('contents')
-    
-    if not contents_path.exists():
-        thread_safe_print("⚠️  找不到contents目录")
-        return l
-    
     for item in contents_path.rglob('*'):
         if item.is_dir():
+            
             input_tex_path = item.joinpath('main.tex')
             if input_tex_path.is_file():
-                try:
-                    with open(input_tex_path, "r", encoding='utf-8') as f:
-                        first_line = f.readline()
-                        title = first_line.replace('%', '').strip()
-                        if title:
-                            l.append({
-                                'name': title,
-                                'entry': str(item.relative_to(current_dir))
-                            })
-                            thread_safe_print(f"📁 找到项目: {title}")
-                except Exception as e:
-                    thread_safe_print(f"⚠️  读取{input_tex_path}失败: {str(e)}")
-    
-    thread_safe_print(f"📊 共找到 {len(l)} 个项目")
+                with open(input_tex_path, "r") as f:
+                    first_line = f.readline()
+                    title = first_line.replace('%', '').strip()
+                    l.append({
+                        'name': title,
+                        'entry': str(item.relative_to(current_dir))
+                    })
+
     return l
 
 def main():
-    """主函数"""
-    # 自动检测CPU核心数
-    cpu_count = get_cpu_count()
-    thread_safe_print(f"🔍 检测到CPU核心数: {cpu_count}")
-    
-    # 智能计算并发数
-    max_projects, max_tasks_per_project = calculate_concurrency(cpu_count)
-    
-    parser = argparse.ArgumentParser(description='并发编译LaTeX项目（自动CPU优化）')
-    parser.add_argument('--sub', type=str, default='true', 
-                       help='是否为子项目编译 (true/false，默认为true)')
-    parser.add_argument('--max-projects', type=int, default=max_projects,
-                       help=f'同时编译的最大项目数 (自动计算: {max_projects})')
-    parser.add_argument('--max-tasks-per-project', type=int, default=max_tasks_per_project,
-                       help=f'每个项目内同时执行的最大任务数 (自动计算: {max_tasks_per_project})')
-    parser.add_argument('--force-cpu', type=int, default=0,
-                       help='强制指定CPU核心数（0=自动检测）')
+
+    l = get_list()
+    parser = argparse.ArgumentParser(description='Compile LaTeX projects')
+    parser.add_argument('--sub', type=str, default='false', 
+                       help='Whether this is a sub project (true/false)')
     
     args = parser.parse_args()
-    
-    # 如果强制指定了CPU核心数
-    if args.force_cpu > 0:
-        cpu_count = args.force_cpu
-        max_projects, max_tasks_per_project = calculate_concurrency(cpu_count)
-        thread_safe_print(f"🔧 使用指定的CPU核心数: {cpu_count}")
-    
-    is_sub = args.sub.lower() == 'true'
-    
-    # 如果用户指定了参数，使用用户指定的值
-    if args.max_projects != max_projects:
-        max_projects = args.max_projects
-    if args.max_tasks_per_project != max_tasks_per_project:
-        max_tasks_per_project = args.max_tasks_per_project
-    
-    thread_safe_print(f"⚙️  并发配置:")
-    thread_safe_print(f"  • CPU核心数: {cpu_count}")
-    thread_safe_print(f"  • 项目并发数: {max_projects}")
-    thread_safe_print(f"  • 任务并发数: {max_tasks_per_project}")
-    thread_safe_print(f"  • 子项目模式: {is_sub}")
-    
-    if not is_sub:
-        thread_safe_print("当前为非子项目模式，退出")
-        return
-    
-    projects = get_list()
-    
-    if not projects:
-        thread_safe_print("❌ 未找到任何项目，退出")
-        return
-    
-    thread_safe_print(f"🚀 开始并发编译 {len(projects)} 个项目...")
-    overall_start_time = time.time()
-    
-    # 动态调整并发数：如果项目很少，减少并发数
-    if len(projects) < max_projects:
-        actual_concurrency = min(len(projects), max_projects)
-        thread_safe_print(f"📉 项目数较少({len(projects)})，将并发数调整为: {actual_concurrency}")
-        max_projects = actual_concurrency
-    
-    with ThreadPoolExecutor(max_workers=max_projects) as project_executor:
-        futures = []
-        
-        for i, project in enumerate(projects):
-            future = project_executor.submit(
-                compile_sub_project, 
-                project, 
-                i, 
-                max_tasks_per_project
-            )
-            futures.append(future)
-        
-        results = []
-        successful_projects = []
-        failed_projects = []
-        
-        for i, future in enumerate(as_completed(futures)):
-            try:
-                all_success, task_id, project_name = future.result()
-                if all_success:
-                    thread_safe_print(f"🎉 项目 {project_name} 全部编译成功！")
-                    successful_projects.append(project_name)
-                else:
-                    thread_safe_print(f"⚠️  项目 {project_name} 部分或全部编译失败")
-                    failed_projects.append(project_name)
-                results.append((all_success, project_name))
-            except Exception as e:
-                thread_safe_print(f"💥 项目{i}执行异常: {str(e)}")
-                failed_projects.append(f"项目{i}")
-    
-    # 输出统计信息
-    overall_elapsed = time.time() - overall_start_time
-    thread_safe_print("\n" + "="*60)
-    thread_safe_print("📊 编译完成统计")
-    thread_safe_print("="*60)
-    thread_safe_print(f"总耗时: {overall_elapsed:.1f}秒")
-    thread_safe_print(f"总项目数: {len(projects)}")
-    thread_safe_print(f"✅ 成功项目: {len(successful_projects)}")
-    
-    if successful_projects:
-        thread_safe_print("  成功列表:")
-        for proj in successful_projects:
-            thread_safe_print(f"    • {proj}")
-    
-    thread_safe_print(f"❌ 失败项目: {len(failed_projects)}")
-    if failed_projects:
-        thread_safe_print("  失败列表:")
-        for proj in failed_projects:
-            thread_safe_print(f"    • {proj}")
-    
-    thread_safe_print("="*60)
-    
-    # 性能分析
-    if len(successful_projects) > 0:
-        sequential_estimate = overall_elapsed * max_projects
-        speedup = sequential_estimate / overall_elapsed if overall_elapsed > 0 else 0
-        thread_safe_print(f"🚀 并发加速比: 约{speedup:.1f}x")
-    
-    if len(failed_projects) == 0:
-        thread_safe_print("🎊 所有项目编译成功！")
-    else:
-        thread_safe_print(f"⚠️  有 {len(failed_projects)} 个项目编译失败")
-        sys.exit(1)
 
-if __name__ == "__main__":
-    main()
+    is_sub = args.sub.lower() == 'true'
+    print(f"Is sub project: {is_sub}")
+
+    if is_sub:
+
+        for item in l:
+            current_dir = Path.cwd()
+            input_path = current_dir.joinpath(item['entry'])
+            if input_path.is_dir():
+                compile_sub_pad(item['entry'], item['name'])
+                compile_sub_exam(item['entry'], item['name'])
+
+main()
