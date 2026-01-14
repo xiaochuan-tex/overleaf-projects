@@ -470,7 +470,7 @@ def main():
     
     is_sub = args.sub.lower() == 'true'
 
-    is_c = args.c.low() == 'true'
+    is_c = args.c.lower() == 'true'
     
     # 如果用户指定了参数，使用用户指定的值
     if args.max_projects != max_projects:
