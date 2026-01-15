@@ -461,7 +461,8 @@ def compile_sub_exam(entry, name, task_id):
     
     try:
         with open(input_path, "r", encoding='utf-8') as f:
-            input_tex = f.read().replace(r'\newpage', '').replace(r'\vfill', '')
+            _input_tex = f.read().replace(r'\newpage', '').replace(r'\vfill', '')
+            input_tex = re.sub(r'VerbatimInput', r'VerbatimInput{\1', _input_tex)
 
         out_tex = exam_template_tex.replace('{title}', name).replace('{content}', input_tex)
         
