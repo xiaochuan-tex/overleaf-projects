@@ -45,6 +45,7 @@ pad_template_tex = r'''\documentclass[oneside]{book}
 \usepackage{tocloft}
 \usepackage{multicol}
 \usepackage{titlesec}
+\usepackage{fancyvrb}
 \UseTblrLibrary{diagbox}
 
 \setlength{\cftsecindent}{1.5em}      % section缩进，默认2.2em
@@ -137,7 +138,7 @@ exam_math_template_tex = r'''\let\stop\empty
 \documentclass{exam-zh}
 
 \usepackage{setspace}
-
+\usepackage{fancyvrb}
 \UseTblrLibrary{diagbox}
 
 \examsetup{
@@ -241,7 +242,7 @@ exam_c_template_tex = r'''\let\stop\empty
 \documentclass{exam-zh}
 
 \usepackage{setspace}
-
+\usepackage{fancyvrb}
 \UseTblrLibrary{diagbox}
 
 \examsetup{
