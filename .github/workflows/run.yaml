@@ -1,8 +1,8 @@
 name: Compile LaTeX Projects
-permissions: write-all
+
 on:
   schedule:
-    - cron: '0 0 * * *'
+    - cron: '0 1 * * *'
   workflow_dispatch:
   push:
 
