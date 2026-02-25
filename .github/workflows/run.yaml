@@ -137,6 +137,7 @@ jobs:
         with:
           name: ${{ matrix.project.name }}
           path: ./*.pdf
+          retention-days: 2
 
   collect-all-pdfs:
     runs-on: ubuntu-latest
@@ -157,4 +158,4 @@ jobs:
         with:
           name: all-latex-projects-pdfs
           path: ./all-pdfs/
-          retention-days: 7
+          retention-days: 2
