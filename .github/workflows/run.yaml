@@ -133,7 +133,7 @@ jobs:
           fi
 
       - name: Upload PDF
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: ${{ matrix.project.name }}
           path: ./*.pdf
@@ -144,7 +144,7 @@ jobs:
     needs: compile-projects
     steps:
       - name: Download all artifacts
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v7
         with:
           path: ./all-pdfs
           
