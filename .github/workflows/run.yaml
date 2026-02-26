@@ -135,7 +135,7 @@ jobs:
       - name: Get ARTIFACT_NAME
         run: |
           # 中文名转base64
-          ENCODED_NAME=$(echo -n "${{ matrix.project.name }}" | base64 -w 0 | tr -d '=' | tr '/+' '_-')
+          ENCODED_NAME=$(echo -n "${{ matrix.project.name }}" | base64 -w 0)
           echo "原始名称: ${{ matrix.project.name }}"
           echo "编码名称: $ENCODED_NAME"
           echo "ARTIFACT_NAME=$ENCODED_NAME" >> $GITHUB_ENV
@@ -165,8 +165,8 @@ jobs:
             if [ -d "$dir" ]; then
               encoded_name=$(basename "$dir")
               
-              # base64解码（还原中文名）
-              decoded_name=$(echo "$encoded_name" | tr '_-' '/+' | base64 -d 2>/dev/null || echo "$encoded_name")
+              # 直接base64解码
+              decoded_name=$(echo "$encoded_name" | base64 -d)
               
               echo "解码: $encoded_name -> $decoded_name"
               
