@@ -132,16 +132,18 @@ jobs:
             find . -name "*.pdf" -type f -exec cp {} ../ \;
           fi
 
-      - name: Generate UUID
-        id: uuid
+      - name: Get ARTIFACT_NAME
         run: |
-          # 生成随机 UUID
-          UUID=$(cat /proc/sys/kernel/random/uuid)
-          echo "uuid=$UUID" >> $GITHUB_OUTPUT
+          # 中文名转base64
+          ENCODED_NAME=$(echo -n "${{ matrix.project.name }}" | base64 -w 0 | tr -d '=' | tr '/+' '_-')
+          echo "原始名称: ${{ matrix.project.name }}"
+          echo "编码名称: $ENCODED_NAME"
+          echo "ARTIFACT_NAME=$ENCODED_NAME" >> $GITHUB_ENV
+
       - name: Upload PDF
         uses: actions/upload-artifact@v6
         with:
-          name: ${{ steps.uuid.outputs.uuid }}
+          name: ${{ env.ARTIFACT_NAME }}
           path: ./*.pdf
           retention-days: 2
 
@@ -152,7 +154,26 @@ jobs:
       - name: Download all artifacts
         uses: actions/download-artifact@v7
         with:
-          path: ./all-pdfs
+          path: ./temp-download
+          
+      - name: Decode and restore Chinese names
+        run: |
+          mkdir -p ./all-pdfs
+          
+          # 遍历所有下载的目录
+          for dir in ./temp-download/*; do
+            if [ -d "$dir" ]; then
+              encoded_name=$(basename "$dir")
+              
+              # base64解码（还原中文名）
+              decoded_name=$(echo "$encoded_name" | tr '_-' '/+' | base64 -d 2>/dev/null || echo "$encoded_name")
+              
+              echo "解码: $encoded_name -> $decoded_name"
+              
+              # 复制到中文目录名
+              cp -r "$dir" "./all-pdfs/$decoded_name"
+            fi
+          done
           
       - name: List all PDFs
         run: |
