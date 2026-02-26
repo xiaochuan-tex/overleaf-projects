@@ -12,38 +12,38 @@ jobs:
     strategy:
       matrix:
         project: 
-          - name: "26李艳芳900题"
-            url: "https://www.overleaf.com/project/6938153fa7bfe48a96682edd/download/zip"
-          - name: "26李林880题"
-            url: "https://www.overleaf.com/project/693952b82ab4edb0635d9a6d/download/zip"
-          - name: "26武忠祥高数严选题"
-            url: "https://www.overleaf.com/project/69426cb371b752e36a043752/download/zip"
-          - name: "26周洋鑫考点全刷800题"
-            url: "https://www.overleaf.com/project/694273ca0004cd133c015538/download/zip"
-          - name: "26数据结构做题本"
-            url: "https://www.overleaf.com/project/693c1bd1b7757c632e5994dc/download/zip"
-          - name: "26操作系统做题本"
-            url: "https://www.overleaf.com/project/693e433b3844a5658596ea38/download/zip"
-          - name: "26计组做题本"
-            url: "https://www.overleaf.com/project/695604664269680786fd1eb2/download/zip"
-          - name: "26计网做题本"
-            url: "https://www.overleaf.com/project/69562d74426968078605fec3/download/zip"
-          - name: "24数学模拟卷"
-            url: "https://www.overleaf.com/project/69510f5b2a2da77347ae2c01/download/zip"
-            sub: true
-          - name: "25数学模拟卷"
-            url: "https://www.overleaf.com/project/695c75ec0dc61c016dfe9644/download/zip"
-            sub: true
-          - name: "26数学模拟卷"
-            url: "https://www.overleaf.com/project/695c76428d7895ec31ce2b07/download/zip"
-            sub: true
-          - name: "数学历年真题"
-            url: "https://www.overleaf.com/project/69526b934d1938e26c9773a3/download/zip"
-            sub: true
-          - name: '计算机历年真题'
-            url: 'https://www.overleaf.com/project/69623fdc0818cdd3f98a1e7d/download/zip'
-            sub: true
-            c: true
+          # - name: "26李艳芳900题"
+          #   url: "https://www.overleaf.com/project/6938153fa7bfe48a96682edd/download/zip"
+          # - name: "26李林880题"
+          #   url: "https://www.overleaf.com/project/693952b82ab4edb0635d9a6d/download/zip"
+          # - name: "26武忠祥高数严选题"
+          #   url: "https://www.overleaf.com/project/69426cb371b752e36a043752/download/zip"
+          # - name: "26周洋鑫考点全刷800题"
+          #   url: "https://www.overleaf.com/project/694273ca0004cd133c015538/download/zip"
+          # - name: "26数据结构做题本"
+          #   url: "https://www.overleaf.com/project/693c1bd1b7757c632e5994dc/download/zip"
+          # - name: "26操作系统做题本"
+          #   url: "https://www.overleaf.com/project/693e433b3844a5658596ea38/download/zip"
+          # - name: "26计组做题本"
+          #   url: "https://www.overleaf.com/project/695604664269680786fd1eb2/download/zip"
+          # - name: "26计网做题本"
+          #   url: "https://www.overleaf.com/project/69562d74426968078605fec3/download/zip"
+          # - name: "24数学模拟卷"
+          #   url: "https://www.overleaf.com/project/69510f5b2a2da77347ae2c01/download/zip"
+          #   sub: true
+          # - name: "25数学模拟卷"
+          #   url: "https://www.overleaf.com/project/695c75ec0dc61c016dfe9644/download/zip"
+          #   sub: true
+          # - name: "26数学模拟卷"
+          #   url: "https://www.overleaf.com/project/695c76428d7895ec31ce2b07/download/zip"
+          #   sub: true
+          # - name: "数学历年真题"
+          #   url: "https://www.overleaf.com/project/69526b934d1938e26c9773a3/download/zip"
+          #   sub: true
+          # - name: '计算机历年真题'
+          #   url: 'https://www.overleaf.com/project/69623fdc0818cdd3f98a1e7d/download/zip'
+          #   sub: true
+          #   c: true
           - name: "线性代数陈建龙"
             url: "https://www.overleaf.com/project/694a85dbedca3140fd82fa92/download/zip"
           - name: "茆书概率论"
@@ -157,34 +157,39 @@ jobs:
       - name: Download all artifacts using gh cli
         run: |
           mkdir -p ./all-pdfs
+          export GH_REPO=${{ github.repository }}
           
-          # 获取所有artifact列表
-          artifacts=$(gh api "/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts" --jq '.artifacts[].name')
+          # 获取所有artifact的ID和名称
+          artifacts=$(gh api "/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts" --jq '.artifacts[] | {id: .id, name: .name}')
           
           echo "找到以下artifacts:"
-          echo "$artifacts"
+          echo "$artifacts" | jq -r '.name'
           echo ""
           
-          # 逐个下载每个artifact
-          echo "$artifacts" | while read -r artifact; do
-            if [ ! -z "$artifact" ]; then
-              echo "正在下载: $artifact"
+          # 逐个下载每个artifact，使用ID而不是名称
+          echo "$artifacts" | jq -c '.' | while read -r artifact; do
+            name=$(echo "$artifact" | jq -r '.name')
+            id=$(echo "$artifact" | jq -r '.id')
+            
+            echo "正在下载: $name (ID: $id)"
+            
+            # 使用ID下载，避免URL过期问题
+            gh api "/repos/${{ github.repository }}/actions/artifacts/$id/zip" > "./temp.zip"
+            
+            if [ $? -eq 0 ]; then
+              # 创建目标目录
+              mkdir -p "./all-pdfs/$name"
               
-              # 下载到临时目录
-              gh run download ${{ github.run_id }} \
-                --name "$artifact" \
-                --dir "./temp-$artifact"
-              
-              # 移动到最终目录
-              if [ -d "./temp-$artifact" ]; then
-                mv "./temp-$artifact" "./all-pdfs/$artifact"
-                echo "✅ 完成: $artifact"
-              else
-                echo "❌ 失败: $artifact"
-              fi
-              
-              echo ""
+              # 解压到对应目录
+              unzip -q "./temp.zip" -d "./all-pdfs/$name"
+              rm "./temp.zip"
+              echo "✅ 完成: $name"
+            else
+              echo "❌ 失败: $name"
             fi
+            
+            echo ""
+            sleep 2
           done
           
           echo "所有下载完成！"
