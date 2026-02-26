@@ -136,9 +136,7 @@ jobs:
         run: |
           KEY="your-secret-key-2024"  # 你可以改成任意密码
     
-          ENCRYPTED_NAME=$(echo -n "${{ matrix.project.name }}" | \
-            openssl enc -aes-256-cbc -base64 -A -pass pass:"$KEY" | \
-            tr '/+' '_-' | tr -d '=')
+          ENCRYPTED_NAME=$(echo -n "${{ matrix.project.name }}" | openssl enc -aes-256-cbc -outform hex -pass pass:"$KEY")
           
           echo "原始名称: ${{ matrix.project.name }}"
           echo "加密名称: $ENCRYPTED_NAME"
@@ -170,18 +168,17 @@ jobs:
             if [ -d "$dir" ]; then
               encrypted_name=$(basename "$dir")
               
-              # 还原base64字符并解密
-              encrypted_fixed=$(echo "$encrypted_name" | tr '_-' '/+')
+              echo "处理文件: $encrypted_name"
               
-              # 解密
-              original_name=$(echo "$encrypted_fixed" | \
-                openssl enc -aes-256-cbc -d -base64 -A -pass pass:"$KEY" 2>/dev/null)
+              # hex解密（不需要还原字符，因为hex只有0-9a-f）
+              original_name=$(echo "$encrypted_name" | xxd -r -p | \
+                openssl enc -aes-256-cbc -d -pass pass:"$KEY" 2>/dev/null)
               
               if [ $? -eq 0 ] && [ ! -z "$original_name" ]; then
-                echo "解密: $encrypted_name -> $original_name"
+                echo "✅ 解密成功: $encrypted_name -> $original_name"
                 cp -r "$dir" "./all-pdfs/$original_name"
               else
-                echo "解密失败，使用原名称: $encrypted_name"
+                echo "❌ 解密失败，使用原名称: $encrypted_name"
                 cp -r "$dir" "./all-pdfs/$encrypted_name"
               fi
             fi
