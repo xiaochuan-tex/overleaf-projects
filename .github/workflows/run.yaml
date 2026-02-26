@@ -132,10 +132,16 @@ jobs:
             find . -name "*.pdf" -type f -exec cp {} ../ \;
           fi
 
+      - name: Generate UUID
+        id: uuid
+        run: |
+          # 生成随机 UUID
+          UUID=$(cat /proc/sys/kernel/random/uuid)
+          echo "uuid=$UUID" >> $GITHUB_OUTPUT
       - name: Upload PDF
         uses: actions/upload-artifact@v6
         with:
-          name: ${{ matrix.project.name }}
+          name: ${{ steps.uuid.outputs.uuid }}
           path: ./*.pdf
           retention-days: 2
 
@@ -154,7 +160,7 @@ jobs:
           find ./all-pdfs -name "*.pdf" | sort
           
       - name: Create consolidated artifact
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: all-latex-projects-pdfs
           path: ./all-pdfs/
