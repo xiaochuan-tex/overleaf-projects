@@ -134,11 +134,15 @@ jobs:
 
       - name: Get ARTIFACT_NAME
         run: |
-          # 中文名转base64
-          ENCODED_NAME=$(echo -n "${{ matrix.project.name }}" | base64 -w 0)
+          KEY="your-secret-key-2024"  # 你可以改成任意密码
+    
+          ENCRYPTED_NAME=$(echo -n "${{ matrix.project.name }}" | \
+            openssl enc -aes-256-cbc -base64 -A -pass pass:"$KEY" | \
+            tr '/+' '_-' | tr -d '=')
+          
           echo "原始名称: ${{ matrix.project.name }}"
-          echo "编码名称: $ENCODED_NAME"
-          echo "ARTIFACT_NAME=$ENCODED_NAME" >> $GITHUB_ENV
+          echo "加密名称: $ENCRYPTED_NAME"
+          echo "ARTIFACT_NAME=$ENCRYPTED_NAME" >> $GITHUB_ENV
 
       - name: Upload PDF
         uses: actions/upload-artifact@v6
@@ -156,22 +160,30 @@ jobs:
         with:
           path: ./temp-download
           
-      - name: Decode and restore Chinese names
+      - name: Decrypt and restore names
         run: |
           mkdir -p ./all-pdfs
+          KEY="your-secret-key-2024"  # 必须和加密时一样
           
           # 遍历所有下载的目录
           for dir in ./temp-download/*; do
             if [ -d "$dir" ]; then
-              encoded_name=$(basename "$dir")
+              encrypted_name=$(basename "$dir")
               
-              # 直接base64解码
-              decoded_name=$(echo "$encoded_name" | base64 -d)
+              # 还原base64字符并解密
+              encrypted_fixed=$(echo "$encrypted_name" | tr '_-' '/+')
               
-              echo "解码: $encoded_name -> $decoded_name"
+              # 解密
+              original_name=$(echo "$encrypted_fixed" | \
+                openssl enc -aes-256-cbc -d -base64 -A -pass pass:"$KEY" 2>/dev/null)
               
-              # 复制到中文目录名
-              cp -r "$dir" "./all-pdfs/$decoded_name"
+              if [ $? -eq 0 ] && [ ! -z "$original_name" ]; then
+                echo "解密: $encrypted_name -> $original_name"
+                cp -r "$dir" "./all-pdfs/$original_name"
+              else
+                echo "解密失败，使用原名称: $encrypted_name"
+                cp -r "$dir" "./all-pdfs/$encrypted_name"
+              fi
             fi
           done
           
