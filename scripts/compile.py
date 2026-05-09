@@ -253,6 +253,7 @@ exam_c_template_tex = r'''\let\stop\empty
   fillin/no-answer-type=none,
   solution/show-solution=show-stay,
   solution/label-indentation=false,
+  page/foot-content=试卷第 ; 页（共 ; 页）
 }
 
 \newcommand{\pp}{(\quad)}
