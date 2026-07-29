@@ -111,7 +111,7 @@ jobs:
         if: steps.cache-software.outputs.cache-hit != 'true'
         run: |
           cd /tmp
-          curl -O https://mirrors.tuna.tsinghua.edu.cn/tex-historic-archive/systems/texlive/2025/texlive.iso
+          curl -O https://mirrors.tuna.tsinghua.edu.cn/tex-historic-archive/systems/texlive/2025/texlive2025.iso
           sudo mkdir -p /mnt/texlive2025
           sudo mount -o loop,ro /tmp/texlive2025.iso /mnt/texlive2025
           cd /mnt/texlive2025
