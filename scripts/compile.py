@@ -140,7 +140,6 @@ exam_math_template_tex = r'''\let\stop\empty
 \usepackage{setspace}
 \usepackage{fancyvrb}
 \UseTblrLibrary{diagbox}
-\usepackage{caption}
 
 \examsetup{
   page/size=a4paper,
@@ -175,11 +174,6 @@ exam_math_template_tex = r'''\let\stop\empty
     {试卷条形码};           % 固定内容
   \end{tikzpicture}
 }
-
-\newenvironment{normalfontmath}{%
-    \everymath{\displaystyle\rm}%  行内公式正体（如需取消\displaystyle可去掉）
-    \everydisplay{\rm}%           行间公式正体
-}{}
 
 \graphicspath{
   {./}        % 当前目录
@@ -250,6 +244,7 @@ exam_c_template_tex = r'''\let\stop\empty
 \usepackage{setspace}
 \usepackage{fancyvrb}
 \UseTblrLibrary{diagbox}
+\usepackage{caption}
 
 \examsetup{
   page/size=a4paper,
@@ -285,6 +280,11 @@ exam_c_template_tex = r'''\let\stop\empty
     {试卷条形码};           % 固定内容
   \end{tikzpicture}
 }
+
+\newenvironment{normalfontmath}{%
+    \everymath{\displaystyle\rm}%  行内公式正体（如需取消\displaystyle可去掉）
+    \everydisplay{\rm}%           行间公式正体
+}{}
 
 \graphicspath{
   {./}        % 当前目录
