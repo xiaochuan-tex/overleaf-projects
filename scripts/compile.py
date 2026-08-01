@@ -176,6 +176,11 @@ exam_math_template_tex = r'''\let\stop\empty
   \end{tikzpicture}
 }
 
+\newenvironment{normalfontmath}{%
+    \everymath{\displaystyle\rm}%  行内公式正体（如需取消\displaystyle可去掉）
+    \everydisplay{\rm}%           行间公式正体
+}{}
+
 \graphicspath{
   {./}        % 当前目录
   {../}       % 上一层
