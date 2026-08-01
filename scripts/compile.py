@@ -140,6 +140,7 @@ exam_math_template_tex = r'''\let\stop\empty
 \usepackage{setspace}
 \usepackage{fancyvrb}
 \UseTblrLibrary{diagbox}
+\usepackage{caption}
 
 \examsetup{
   page/size=a4paper,
