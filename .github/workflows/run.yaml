@@ -48,6 +48,10 @@ jobs:
             url: "https://www.overleaf.com/project/695c76428d7895ec31ce2b07/download/zip"
             sub: true
             ename: "mathpaper26"
+          - name: "27数学模拟卷"
+            url: "https://cn.overleaf.com/project/6a9685aeca88a979c0345877/download/zip"
+            sub: true
+            ename: "mathpaper27"
           - name: "数学历年真题"
             url: "https://www.overleaf.com/project/69526b934d1938e26c9773a3/download/zip"
             sub: true
